@@ -2,7 +2,7 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 
-namespace PlaywrightTests;
+namespace xUnitPlaywrightTests.Demo;
 
 public class UnitTest1 : PageTest
 {

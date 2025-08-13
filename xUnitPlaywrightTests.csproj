@@ -19,4 +19,13 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+    <Folder Include="Pages\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include=".github\workflows\playwright.yml" />
+  </ItemGroup>
+
 </Project>
