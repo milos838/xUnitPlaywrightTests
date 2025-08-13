@@ -17,7 +17,7 @@ namespace xUnitPlaywrightTests.Tests
         public async Task InitializeAsync()
         {
             _playwright = await Playwright.CreateAsync();
-            _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = false });
+            _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
             _context = await _browser.NewContextAsync();
             _page = await _context.NewPageAsync();
 
