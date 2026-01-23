@@ -28,7 +28,7 @@ public class TC0001_Verify_HomePage_URL: PageTest
     // Loads test data from the JSON file
     private void LoadTestData()
     {
-        string jsonPath = Path.Combine(AppContext.BaseDirectory, "../../../HomePage.json");
+        string jsonPath = Path.Combine(AppContext.BaseDirectory, "../../../Data/HomePage.json");
         string jsonContent = File.ReadAllText(jsonPath);
         testData = JsonSerializer.Deserialize<TC0001_TestObject>(jsonContent);
     }

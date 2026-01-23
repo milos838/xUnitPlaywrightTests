@@ -29,7 +29,7 @@ public class TC0002_Verify_HomePage_Title: PageTest
     // Loads test data from the JSON file
     private void LoadTestData()
     {
-        string jsonPath = Path.Combine(AppContext.BaseDirectory, "../../../HomePage.json");
+        string jsonPath = Path.Combine(AppContext.BaseDirectory, "../../../Data/HomePage.json");
         string jsonContent = File.ReadAllText(jsonPath);
         testData = JsonSerializer.Deserialize<TC0002_TestObject>(jsonContent);
     }
