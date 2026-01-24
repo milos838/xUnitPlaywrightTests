@@ -8,7 +8,7 @@ using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
 
-public class TC0001_Verify_HomePage_URL: PageTest
+public class TC0001_Verify_Login_function: PageTest
 {
     private TC0001_TestObject? testData;
 
@@ -18,6 +18,7 @@ public class TC0001_Verify_HomePage_URL: PageTest
         await base.InitializeAsync().ConfigureAwait(false);
         await TraceViewerComponent.StartTraceAsync(Context, this.GetType().Name);
     }
+
     // Disposes tracing after the test and saving the trace file
     public override async Task DisposeAsync()
     {
@@ -28,23 +29,24 @@ public class TC0001_Verify_HomePage_URL: PageTest
     // Loads test data from the JSON file
     private void LoadTestData()
     {
-        string jsonPath = Path.Combine(AppContext.BaseDirectory, "../../../HomePage.json");
+        string jsonPath = Path.Combine(AppContext.BaseDirectory, "../../../Data/HomePage.json");
         string jsonContent = File.ReadAllText(jsonPath);
         testData = JsonSerializer.Deserialize<TC0001_TestObject>(jsonContent);
     }
 
     [Fact]
-    public async Task VerifyHomePageURL()
+    public async Task VerifyHomePageTitle()
     {
         LoadTestData();
         var homePage = new Pages.HomePage(Page);
 
-        Console.WriteLine("TC0001: Verify HomePage URL is started!");
+        Console.WriteLine("TC0001: Verify Login function is started!");
 
         await homePage.NavigateAsync(testData!.URL!);
-        await homePage.GetCurrentURLAsync();
-        await homePage.AssertURLAsync(testData!.ExpectedURL!);
+        await homePage.AssertLoginFieldsVisibleAsync();
+        await homePage.SubmitLoginAsync(testData!.Username!, testData!.Password!);
+        await homePage.AssertDashboardHeaderVisibleAsync();
 
-        Console.WriteLine("TC0001: Verify HomePage URL is completed!");
+        Console.WriteLine("TC0001: Verify Login function is completed!");
     }
 }
