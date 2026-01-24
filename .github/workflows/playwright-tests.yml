@@ -1,5 +1,9 @@
 name: Playwright Tests
 
+permissions:
+  contents: read
+  checks: write
+
 on:
   push:
     branches: [ main, develop ]
@@ -11,42 +15,42 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '10.0.x'
-    
-    - name: Restore dependencies
-      run: dotnet restore
-    
-    - name: Build
-      run: dotnet build --no-restore --configuration Release
-    
-    - name: Install Playwright browsers
-      run: pwsh bin/Debug/net10.0/playwright.ps1 install
-    
-    - name: Run tests
-      run: dotnet test --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
-    
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results
-        path: '**/test-results.trx'
+      - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-       python-version: '3.x'
-    
-    - name: Publish test results
-      if: always()
-      uses: EnricoMi/publish-unit-test-result-action/windows@v2
-      with:
-        files: '**/test-results.trx'
-        check_name: Playwright Test Results
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
 
-    
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration ${{ env.CONFIGURATION }}
+
+      - name: Install Playwright browsers
+        # use the same configuration folder as build
+        run: pwsh bin/${{ env.CONFIGURATION }}/net10.0/playwright.ps1 install
+
+      - name: Run tests
+        # write a single known location for the TRX file
+        run: dotnet test --no-build --verbosity normal --logger "trx;LogFileName=TestResults/test-results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/test-results.trx
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Publish test results
+        if: always() && (github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: EnricoMi/publish-unit-test-result-action/windows@v2
+        with:
+          files: 'TestResults/test-results.trx'
+          check_name: Playwright Test Results
