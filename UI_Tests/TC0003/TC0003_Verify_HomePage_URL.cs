@@ -8,9 +8,9 @@ using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
 
-public class TC0002_Verify_HomePage_Title: PageTest
+public class TC0001_Verify_HomePage_URL: PageTest
 {
-    private TC0002_TestObject? testData;
+    private TC0003_TestObject? testData;
 
     // Initializes tracing for the test
     public override async Task InitializeAsync()
@@ -18,7 +18,6 @@ public class TC0002_Verify_HomePage_Title: PageTest
         await base.InitializeAsync().ConfigureAwait(false);
         await TraceViewerComponent.StartTraceAsync(Context, this.GetType().Name);
     }
-
     // Disposes tracing after the test and saving the trace file
     public override async Task DisposeAsync()
     {
@@ -31,20 +30,21 @@ public class TC0002_Verify_HomePage_Title: PageTest
     {
         string jsonPath = Path.Combine(AppContext.BaseDirectory, "../../../Data/HomePage.json");
         string jsonContent = File.ReadAllText(jsonPath);
-        testData = JsonSerializer.Deserialize<TC0002_TestObject>(jsonContent);
+        testData = JsonSerializer.Deserialize<TC0003_TestObject>(jsonContent);
     }
 
     [Fact]
-    public async Task VerifyHomePageTitle()
+    public async Task VerifyHomePageURL()
     {
         LoadTestData();
         var homePage = new Pages.HomePage(Page);
 
-        Console.WriteLine("TC0002: Verify HomePage Title is started!");
+        Console.WriteLine("TC0003: Verify HomePage URL is started!");
 
         await homePage.NavigateAsync(testData!.URL!);
-        await homePage.AssertPageTitleAsync(testData!.ExpectedTitle!);
+        await homePage.SubmitLoginAsync(testData!.Username!, testData!.Password!);
+        await homePage.AssertURLAsync(testData!.ExpectedURL!);
 
-        Console.WriteLine("TC0002: Verify HomePage Title is completed!");
+        Console.WriteLine("TC0003: Verify HomePage URL is completed!");
     }
 }
