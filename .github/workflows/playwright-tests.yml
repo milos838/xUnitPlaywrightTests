@@ -36,6 +36,11 @@ jobs:
       with:
         name: test-results
         path: '**/test-results.trx'
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+       python-version: '3.x'
     
     - name: Publish test results
       if: always()
@@ -44,7 +49,4 @@ jobs:
         files: '**/test-results.trx'
         check_name: Playwright Test Results
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-       python-version: '3.x'
+    
