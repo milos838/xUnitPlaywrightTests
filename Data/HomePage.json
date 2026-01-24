@@ -1,0 +1,7 @@
+{
+    "URL": "https://rahulshettyacademy.com/client/#/auth/login",
+    "expectedURL" : "https://rahulshettyacademy.com/client/#/dashboard/dash",
+    "expectedTitle": "Let's Shop",
+    "username": "milos.jancic83@gmail.com",
+    "password": "mikitest83"
+}
