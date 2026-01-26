@@ -13,6 +13,8 @@ on:
 jobs:
   test:
     runs-on: windows-latest
+    env:
+      CONFIGURATION: Release
     
     steps:
       - uses: actions/checkout@v4
