@@ -12,6 +12,10 @@ namespace PlaywrightTests.Pages
         private ILocator password => _page.Locator("#userPassword");
         private ILocator loginButton => _page.Locator("#login");
         private ILocator dashboardHeader => _page.Locator("//*[contains(text(), 'Automation Practice')]");
+        private ILocator homeLink => _page.Locator("//*[contains(text(), ' HOME ')]");
+        private ILocator ordersLink => _page.Locator("//*[contains(text(), ' ORDERS')]");
+        private ILocator cartLink => _page.Locator("//*[contains(text(), ' Cart ')]");
+        private ILocator logoutLink => _page.Locator("//*[contains(text(), ' Sign Out ')]");
         
         //Constructor
         public HomePage(IPage page)
@@ -54,6 +58,13 @@ namespace PlaywrightTests.Pages
         public async Task AssertDashboardHeaderVisibleAsync()
         {
             await Assertions.Expect(dashboardHeader).ToBeVisibleAsync();
+        }
+        public async Task AssertHeaderLinksVisibleAsync()
+        {
+            await Assertions.Expect(homeLink).ToBeVisibleAsync();
+            await Assertions.Expect(ordersLink).ToBeVisibleAsync();
+            await Assertions.Expect(cartLink).ToBeVisibleAsync();
+            await Assertions.Expect(logoutLink).ToBeVisibleAsync();
         }
     }
 }

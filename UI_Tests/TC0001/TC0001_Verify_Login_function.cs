@@ -35,7 +35,7 @@ public class TC0001_Verify_Login_function: PageTest
     }
 
     [Fact]
-    public async Task VerifyHomePageTitle()
+    public async Task VerifyLoginFunctions()
     {
         LoadTestData();
         var homePage = new Pages.HomePage(Page);
