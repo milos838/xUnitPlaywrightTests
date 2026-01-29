@@ -8,7 +8,7 @@ using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
 
-public class TC0001_Verify_HomePage_URL: PageTest
+public class TC0003_Verify_HomePage_URL: PageTest
 {
     private TC0003_TestObject? testData;
 
