@@ -18,6 +18,9 @@ namespace PlaywrightTests.Pages
         private ILocator logoutLink => _page.Locator("//*[contains(text(), ' Sign Out ')]");
         private ILocator searchBox => _page.GetByRole(AriaRole.Textbox, new() { Name = "search" });
         private ILocator searchedProduct => _page.Locator("//*[contains(text(), 'ADIDAS ')]");
+        private ILocator minPriceField => _page.GetByRole(AriaRole.Textbox, new() { Name = "Min Price" });
+        private ILocator maxPriceField => _page.GetByRole(AriaRole.Textbox, new() { Name = "Max Price" });
+        private ILocator priceSearchedProduct => _page.GetByText("iphone 13 pro");
         
         //Constructor
         public HomePage(IPage page)
@@ -44,6 +47,12 @@ namespace PlaywrightTests.Pages
         {
             await searchBox.FillAsync(searchTerm);
             await searchBox.PressAsync("Enter");
+        }
+        public async Task SetPriceFilterAsync(string minPrice, string maxPrice)
+        {
+            await minPriceField.FillAsync(minPrice);
+            await maxPriceField.FillAsync(maxPrice);
+            await maxPriceField.PressAsync("Enter");
         }
        
         
@@ -81,5 +90,15 @@ namespace PlaywrightTests.Pages
         {
             await Assertions.Expect(searchedProduct).ToBeVisibleAsync();
         }
+        public async Task AssertPriceFilterFieldsVisibleAsync()
+        {
+            await Assertions.Expect(minPriceField).ToBeVisibleAsync();
+            await Assertions.Expect(maxPriceField).ToBeVisibleAsync();
+        }
+        public async Task AssertPriceSearchedProductVisibleAsync()
+        {
+            await Assertions.Expect(priceSearchedProduct).ToBeVisibleAsync();
+        }
+        
     }
 }
