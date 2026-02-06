@@ -16,6 +16,8 @@ namespace PlaywrightTests.Pages
         private ILocator ordersLink => _page.Locator("//*[contains(text(), ' ORDERS')]");
         private ILocator cartLink => _page.Locator("//*[contains(text(), ' Cart ')]");
         private ILocator logoutLink => _page.Locator("//*[contains(text(), ' Sign Out ')]");
+        private ILocator searchBox => _page.GetByRole(AriaRole.Textbox, new() { Name = "search" });
+        private ILocator searchedProduct => _page.Locator("//*[contains(text(), 'ADIDAS ')]");
         
         //Constructor
         public HomePage(IPage page)
@@ -37,6 +39,11 @@ namespace PlaywrightTests.Pages
             await username.FillAsync(Username);
             await password.FillAsync(Password);
             await loginButton.ClickAsync();
+        }
+        public async Task SearchProductAsync(string searchTerm)
+        {
+            await searchBox.FillAsync(searchTerm);
+            await searchBox.PressAsync("Enter");
         }
        
         
@@ -65,6 +72,14 @@ namespace PlaywrightTests.Pages
             await Assertions.Expect(ordersLink).ToBeVisibleAsync();
             await Assertions.Expect(cartLink).ToBeVisibleAsync();
             await Assertions.Expect(logoutLink).ToBeVisibleAsync();
+        }
+        public async Task AssertSearchBoxVisibleAsync()
+        {
+            await Assertions.Expect(searchBox).ToBeVisibleAsync();
+        }
+        public async Task AssertSearchedProductVisibleAsync()
+        {
+            await Assertions.Expect(searchedProduct).ToBeVisibleAsync();
         }
     }
 }
