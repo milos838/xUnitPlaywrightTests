@@ -4,5 +4,7 @@
     "expectedTitle": "Let's Shop",
     "username": "milos.jancic83@gmail.com",
     "password": "mikitest83",
-    "searchTerm": "ADIDAS"
+    "searchTerm": "ADIDAS",
+    "minPrice": "50000",
+    "maxPrice": "60000"
 }
