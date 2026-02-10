@@ -6,5 +6,8 @@
     "password": "mikitest83",
     "searchTerm": "ADIDAS",
     "minPrice": "50000",
-    "maxPrice": "60000"
+    "maxPrice": "60000",
+    "category1": "fashion",
+    "category2": "electronics",
+    "category3": "household"
 }
