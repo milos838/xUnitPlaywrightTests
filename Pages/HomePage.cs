@@ -21,6 +21,10 @@ namespace PlaywrightTests.Pages
         private ILocator minPriceField => _page.GetByRole(AriaRole.Textbox, new() { Name = "Min Price" });
         private ILocator maxPriceField => _page.GetByRole(AriaRole.Textbox, new() { Name = "Max Price" });
         private ILocator priceSearchedProduct => _page.GetByText("iphone 13 pro");
+        private ILocator fashionCheckBox => _page.Locator("//*[@id='sidebar']//input[@type='checkbox' and (ancestor::label[normalize-space(.)='fashion'] or ../label[normalize-space(.)='fashion'] or following-sibling::label[1][normalize-space(.)='fashion'] or @id = //label[normalize-space(.)='fashion']/@for)]");
+        private ILocator electronicsCheckBox => _page.Locator("//*[@id='sidebar']//input[@type='checkbox' and (ancestor::label[normalize-space(.)='electronics'] or ../label[normalize-space(.)='electronics'] or following-sibling::label[1][normalize-space(.)='electronics'] or @id = //label[normalize-space(.)='electronics']/@for)]");
+
+        private ILocator householdCheckBox => _page.Locator("//*[@id='sidebar']//input[@type='checkbox' and (ancestor::label[normalize-space(.)='household'] or ../label[normalize-space(.)='household'] or following-sibling::label[1][normalize-space(.)='household'] or @id = //label[normalize-space(.)='household']/@for)]");
         
         //Constructor
         public HomePage(IPage page)
@@ -54,7 +58,19 @@ namespace PlaywrightTests.Pages
             await maxPriceField.FillAsync(maxPrice);
             await maxPriceField.PressAsync("Enter");
         }
-       
+        public async Task CheckFashionBoxAsync()
+        {
+            await fashionCheckBox.CheckAsync();
+        }
+        public async Task CheckElectronicsBoxAsync()
+        {
+            await electronicsCheckBox.CheckAsync();
+        }
+        public async Task CheckHouseholdBoxAsync()
+        {
+            await householdCheckBox.CheckAsync();
+        }
+        
         
         //Assertions
         public async Task AssertURLAsync(string expectedURL)
@@ -98,6 +114,23 @@ namespace PlaywrightTests.Pages
         public async Task AssertPriceSearchedProductVisibleAsync()
         {
             await Assertions.Expect(priceSearchedProduct).ToBeVisibleAsync();
+        }
+        public async Task AssertCategoryCheckBoxesVisibleAsync()
+        {
+            await Assertions.Expect(fashionCheckBox).ToBeVisibleAsync();
+            await Assertions.Expect(electronicsCheckBox).ToBeVisibleAsync();
+            await Assertions.Expect(householdCheckBox).ToBeVisibleAsync();
+        }
+        public async Task AssertCategoryCheckBoxCheckedAsync(string category)
+        {
+            ILocator checkBox = category switch
+            {
+                "fashion" => fashionCheckBox,
+                "electronics" => electronicsCheckBox,
+                "household" => householdCheckBox,
+                _ => throw new ArgumentException("Invalid category")
+            };
+            await Assertions.Expect(checkBox).ToBeCheckedAsync();
         }
         
     }
