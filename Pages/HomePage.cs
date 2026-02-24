@@ -26,6 +26,14 @@ namespace PlaywrightTests.Pages
 
         private ILocator householdCheckBox => _page.Locator("//*[@id='sidebar']//input[@type='checkbox' and (ancestor::label[normalize-space(.)='household'] or ../label[normalize-space(.)='household'] or following-sibling::label[1][normalize-space(.)='household'] or @id = //label[normalize-space(.)='household']/@for)]");
         
+        private ILocator tShirtsCheckBox => _page.Locator("//section[@id='sidebar']//div[4]//div[2]//input[1]");
+        private ILocator shirtsCheckBox => _page.Locator("//section[@id='sidebar']//div[4]//div[3]//input[1]");
+        private ILocator shoesCheckBox => _page.Locator("//section[@id='sidebar']//div[4]//div[4]//input[1]");
+        private ILocator mobilesCheckBox => _page.Locator("//section[@id='sidebar']//div[4]//div[5]//input[1]");
+        private ILocator laptopsCheckBox => _page.Locator("//section[@id='sidebar']//div[4]//div[6]//input[1]");
+        
+        
+        
         //Constructor
         public HomePage(IPage page)
         {
@@ -70,6 +78,27 @@ namespace PlaywrightTests.Pages
         {
             await householdCheckBox.CheckAsync();
         }
+        public async Task CheckTShirtsBoxAsync()
+        {
+            await tShirtsCheckBox.CheckAsync();
+        }
+        public async Task CheckShirtsBoxAsync()
+        {
+            await shirtsCheckBox.CheckAsync();
+        }   
+        public async Task CheckShoesBoxAsync()
+        {
+            await shoesCheckBox.CheckAsync();
+        }
+        public async Task CheckMobilesBoxAsync()
+        {
+            await mobilesCheckBox.CheckAsync();
+        }
+        public async Task CheckLaptopsBoxAsync()
+        {
+            await laptopsCheckBox.CheckAsync();
+        }
+
         
         
         //Assertions
@@ -131,6 +160,34 @@ namespace PlaywrightTests.Pages
                 _ => throw new ArgumentException("Invalid category")
             };
             await Assertions.Expect(checkBox).ToBeCheckedAsync();
+        }
+        public async Task AssertSubCategoryCheckBoxesVisibleAsync()
+        {
+            await Assertions.Expect(tShirtsCheckBox).ToBeVisibleAsync();
+            await Assertions.Expect(shirtsCheckBox).ToBeVisibleAsync();
+            await Assertions.Expect(shoesCheckBox).ToBeVisibleAsync();
+            await Assertions.Expect(mobilesCheckBox).ToBeVisibleAsync();
+            await Assertions.Expect(laptopsCheckBox).ToBeVisibleAsync();
+        }
+        public async Task AssertSubCategoryTShirtsCheckBoxCheckedAsync()
+        {
+            await Assertions.Expect(tShirtsCheckBox).ToBeCheckedAsync();
+        }
+        public async Task AssertSubCategoryShirtsCheckBoxCheckedAsync()
+        {
+            await Assertions.Expect(shirtsCheckBox).ToBeCheckedAsync();
+        }
+        public async Task AssertSubCategoryShoesCheckBoxCheckedAsync()
+        {
+            await Assertions.Expect(shoesCheckBox).ToBeCheckedAsync();
+        }
+        public async Task AssertSubCategoryMobilesCheckBoxCheckedAsync()
+        {
+            await Assertions.Expect(mobilesCheckBox).ToBeCheckedAsync();
+        }
+        public async Task AssertSubCategoryLaptopsCheckBoxCheckedAsync()
+        {
+            await Assertions.Expect(laptopsCheckBox).ToBeCheckedAsync();
         }
         
     }
