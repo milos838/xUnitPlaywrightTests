@@ -23,10 +23,16 @@ namespace PlaywrightTests.Pages
         private ILocator priceSearchedProduct => _page.GetByText("iphone 13 pro");
         private ILocator fashionCheckBox => _page.Locator("//*[@id='sidebar']//input[@type='checkbox' and (ancestor::label[normalize-space(.)='fashion'] or ../label[normalize-space(.)='fashion'] or following-sibling::label[1][normalize-space(.)='fashion'] or @id = //label[normalize-space(.)='fashion']/@for)]");
         private ILocator electronicsCheckBox => _page.Locator("//*[@id='sidebar']//input[@type='checkbox' and (ancestor::label[normalize-space(.)='electronics'] or ../label[normalize-space(.)='electronics'] or following-sibling::label[1][normalize-space(.)='electronics'] or @id = //label[normalize-space(.)='electronics']/@for)]");
-
         private ILocator householdCheckBox => _page.Locator("//*[@id='sidebar']//input[@type='checkbox' and (ancestor::label[normalize-space(.)='household'] or ../label[normalize-space(.)='household'] or following-sibling::label[1][normalize-space(.)='household'] or @id = //label[normalize-space(.)='household']/@for)]");
+        private ILocator tShirtsCheckBox => _page.Locator("//section[@id='sidebar']//div[4]//div[2]//input[1]");
+        private ILocator shirtsCheckBox => _page.Locator("//section[@id='sidebar']//div[4]//div[3]//input[1]");
+        private ILocator shoesCheckBox => _page.Locator("//section[@id='sidebar']//div[4]//div[4]//input[1]");
+        private ILocator mobilesCheckBox => _page.Locator("//section[@id='sidebar']//div[4]//div[5]//input[1]");
+        private ILocator laptopsCheckBox => _page.Locator("//section[@id='sidebar']//div[4]//div[6]//input[1]");
         private ILocator SearchForMenBox => _page.Locator("//div[@class='py-2 ml-3']//div[2]//input[1]");
         private ILocator SearchForWomenBox => _page.Locator("//div[@class='py-2 ml-3']//div[3]//input[1]");
+
+        //Constructor
         public HomePage(IPage page)
         {
             _page = page;
@@ -69,6 +75,26 @@ namespace PlaywrightTests.Pages
         public async Task CheckHouseholdBoxAsync()
         {
             await householdCheckBox.CheckAsync();
+        }
+        public async Task CheckTShirtsBoxAsync()
+        {
+            await tShirtsCheckBox.CheckAsync();
+        }
+        public async Task CheckShirtsBoxAsync()
+        {
+            await shirtsCheckBox.CheckAsync();
+        }
+        public async Task CheckShoesBoxAsync()
+        {
+            await shoesCheckBox.CheckAsync();
+        }
+        public async Task CheckMobilesBoxAsync()
+        {
+            await mobilesCheckBox.CheckAsync();
+        }
+        public async Task CheckLaptopsBoxAsync()
+        {
+            await laptopsCheckBox.CheckAsync();
         }
         public async Task CheckSearchForMenBoxAsync()
         {
@@ -140,6 +166,34 @@ namespace PlaywrightTests.Pages
             };
             await Assertions.Expect(checkBox).ToBeCheckedAsync();
         }
+        public async Task AssertSubCategoryCheckBoxesVisibleAsync()
+        {
+            await Assertions.Expect(tShirtsCheckBox).ToBeVisibleAsync();
+            await Assertions.Expect(shirtsCheckBox).ToBeVisibleAsync();
+            await Assertions.Expect(shoesCheckBox).ToBeVisibleAsync();
+            await Assertions.Expect(mobilesCheckBox).ToBeVisibleAsync();
+            await Assertions.Expect(laptopsCheckBox).ToBeVisibleAsync();
+        }
+        public async Task AssertSubCategoryTShirtsCheckBoxCheckedAsync()
+        {
+            await Assertions.Expect(tShirtsCheckBox).ToBeCheckedAsync();
+        }
+        public async Task AssertSubCategoryShirtsCheckBoxCheckedAsync()
+        {
+            await Assertions.Expect(shirtsCheckBox).ToBeCheckedAsync();
+        }
+        public async Task AssertSubCategoryShoesCheckBoxCheckedAsync()
+        {
+            await Assertions.Expect(shoesCheckBox).ToBeCheckedAsync();
+        }
+        public async Task AssertSubCategoryMobilesCheckBoxCheckedAsync()
+        {
+            await Assertions.Expect(mobilesCheckBox).ToBeCheckedAsync();
+        }
+        public async Task AssertSubCategoryLaptopsCheckBoxCheckedAsync()
+        {
+            await Assertions.Expect(laptopsCheckBox).ToBeCheckedAsync();
+        }
         public async Task AssertSearchForMenBoxVisibleAsync()
         {
             await Assertions.Expect(SearchForMenBox).ToBeVisibleAsync();
@@ -151,7 +205,7 @@ namespace PlaywrightTests.Pages
         public async Task AssertSearchForMenBoxCheckedAsync()
         {
             await Assertions.Expect(SearchForMenBox).ToBeCheckedAsync();
-        }   
+        }
         public async Task AssertSearchForWomenBoxCheckedAsync()
         {
             await Assertions.Expect(SearchForWomenBox).ToBeCheckedAsync();
