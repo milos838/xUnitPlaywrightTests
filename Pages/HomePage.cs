@@ -25,6 +25,7 @@ namespace PlaywrightTests.Pages
         private ILocator electronicsCheckBox => _page.Locator("//*[@id='sidebar']//input[@type='checkbox' and (ancestor::label[normalize-space(.)='electronics'] or ../label[normalize-space(.)='electronics'] or following-sibling::label[1][normalize-space(.)='electronics'] or @id = //label[normalize-space(.)='electronics']/@for)]");
 
         private ILocator householdCheckBox => _page.Locator("//*[@id='sidebar']//input[@type='checkbox' and (ancestor::label[normalize-space(.)='household'] or ../label[normalize-space(.)='household'] or following-sibling::label[1][normalize-space(.)='household'] or @id = //label[normalize-space(.)='household']/@for)]");
+<<<<<<< HEAD
         
         private ILocator tShirtsCheckBox => _page.Locator("//section[@id='sidebar']//div[4]//div[2]//input[1]");
         private ILocator shirtsCheckBox => _page.Locator("//section[@id='sidebar']//div[4]//div[3]//input[1]");
@@ -35,6 +36,10 @@ namespace PlaywrightTests.Pages
         
         
         //Constructor
+=======
+        private ILocator SearchForMenBox => _page.Locator("//div[@class='py-2 ml-3']//div[2]//input[1]");
+        private ILocator SearchForWomenBox => _page.Locator("//div[@class='py-2 ml-3']//div[3]//input[1]");
+>>>>>>> 82d0f2f72b3bd0a2e4146e317607c58150fd0110
         public HomePage(IPage page)
         {
             _page = page;
@@ -78,6 +83,7 @@ namespace PlaywrightTests.Pages
         {
             await householdCheckBox.CheckAsync();
         }
+<<<<<<< HEAD
         public async Task CheckTShirtsBoxAsync()
         {
             await tShirtsCheckBox.CheckAsync();
@@ -99,6 +105,16 @@ namespace PlaywrightTests.Pages
             await laptopsCheckBox.CheckAsync();
         }
 
+=======
+        public async Task CheckSearchForMenBoxAsync()
+        {
+            await SearchForMenBox.CheckAsync();
+        }
+        public async Task CheckSearchForWomenBoxAsync()
+        {
+            await SearchForWomenBox.CheckAsync();
+        }
+>>>>>>> 82d0f2f72b3bd0a2e4146e317607c58150fd0110
         
         
         //Assertions
@@ -161,6 +177,7 @@ namespace PlaywrightTests.Pages
             };
             await Assertions.Expect(checkBox).ToBeCheckedAsync();
         }
+<<<<<<< HEAD
         public async Task AssertSubCategoryCheckBoxesVisibleAsync()
         {
             await Assertions.Expect(tShirtsCheckBox).ToBeVisibleAsync();
@@ -188,6 +205,23 @@ namespace PlaywrightTests.Pages
         public async Task AssertSubCategoryLaptopsCheckBoxCheckedAsync()
         {
             await Assertions.Expect(laptopsCheckBox).ToBeCheckedAsync();
+=======
+        public async Task AssertSearchForMenBoxVisibleAsync()
+        {
+            await Assertions.Expect(SearchForMenBox).ToBeVisibleAsync();
+        }
+        public async Task AssertSearchForWomenBoxVisibleAsync()
+        {
+            await Assertions.Expect(SearchForWomenBox).ToBeVisibleAsync();
+        }
+        public async Task AssertSearchForMenBoxCheckedAsync()
+        {
+            await Assertions.Expect(SearchForMenBox).ToBeCheckedAsync();
+        }   
+        public async Task AssertSearchForWomenBoxCheckedAsync()
+        {
+            await Assertions.Expect(SearchForWomenBox).ToBeCheckedAsync();
+>>>>>>> 82d0f2f72b3bd0a2e4146e317607c58150fd0110
         }
         
     }
