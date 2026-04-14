@@ -31,6 +31,7 @@ namespace PlaywrightTests.Pages
         private ILocator laptopsCheckBox => _page.Locator("//section[@id='sidebar']//div[4]//div[6]//input[1]");
         private ILocator SearchForMenBox => _page.Locator("//div[@class='py-2 ml-3']//div[2]//input[1]");
         private ILocator SearchForWomenBox => _page.Locator("//div[@class='py-2 ml-3']//div[3]//input[1]");
+        private ILocator CartButton => _page.Locator("//*[@routerlink='/dashboard/cart']");
 
         //Constructor
         public HomePage(IPage page)
@@ -52,6 +53,7 @@ namespace PlaywrightTests.Pages
             await username.FillAsync(Username);
             await password.FillAsync(Password);
             await loginButton.ClickAsync();
+            await Assertions.Expect(dashboardHeader).ToBeVisibleAsync(new() { Timeout = 15000 });
         }
         public async Task SearchProductAsync(string searchTerm)
         {
@@ -103,6 +105,21 @@ namespace PlaywrightTests.Pages
         public async Task CheckSearchForWomenBoxAsync()
         {
             await SearchForWomenBox.CheckAsync();
+        }
+        public async Task AddToCartAsync(string product)
+        {
+            var productCard = _page.Locator(".card-body", new() { HasText = product }).First;
+            if (await productCard.CountAsync() == 0)
+            {
+                throw new InvalidOperationException($"Product '{product}' not found on page.");
+            }
+
+            await Assertions.Expect(productCard).ToBeVisibleAsync(new() { Timeout = 15000 });
+            await productCard.Locator("button", new() { HasText = "Add To Cart" }).ClickAsync();
+        }
+        public async Task GoToCartAsync()
+        {
+            await CartButton.ClickAsync();
         }
         
         
@@ -210,6 +227,7 @@ namespace PlaywrightTests.Pages
         {
             await Assertions.Expect(SearchForWomenBox).ToBeCheckedAsync();
         }
+         
         
     }
 }
