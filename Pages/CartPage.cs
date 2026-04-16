@@ -7,6 +7,10 @@ namespace PlaywrightTests.Pages
     public class CartPage
     {
         private readonly IPage _page;
+        private ILocator deleteButton => _page.Locator(".btn-danger"); 
+        private ILocator buyButton => _page.Locator("//*[contains(text(), 'Buy Now')]");
+        private ILocator checkoutButton => _page.Locator("//*[contains(text(), 'Checkout')]");
+        private ILocator noCartitemsMessage => _page.Locator("//*[contains(text(), 'No Products in Your Cart !')]");
 
         // Constructor 
         public CartPage(IPage page)
@@ -15,6 +19,18 @@ namespace PlaywrightTests.Pages
         }
 
         //Functions or methods
+        public async Task DeleteProductFromCartAsync(string product)
+        {
+            var productLocator = _page.Locator($"text={product}");
+            if (await productLocator.IsVisibleAsync())
+            {
+                await deleteButton.ClickAsync();
+            }
+            else
+            {
+                throw new Exception($"Product '{product}' not found in the cart.");
+            }
+        }
 
         //Assertions
         public async Task AssertProductInCartAsync(string product)
@@ -39,6 +55,22 @@ namespace PlaywrightTests.Pages
             {
                 throw new Exception($"Product '{product}' was not found in the cart.");
             }   
+        }
+        public async Task AssertDeleteButtonVisibleAsync()
+        {
+            await Expect(deleteButton).ToBeVisibleAsync();
+        }
+        public async Task AssertBuyButtonVisibleAsync()
+        {
+            await Expect(buyButton).ToBeVisibleAsync();
+        }
+        public async Task AssertCheckoutButtonVisibleAsync()
+        {
+            await Expect(checkoutButton).ToBeVisibleAsync();
+        }
+        public async Task AssertNoCartItemsMessageVisibleAsync()
+        {
+            await Expect(noCartitemsMessage).ToBeVisibleAsync();
         }
 }
 }
