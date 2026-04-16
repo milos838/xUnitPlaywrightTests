@@ -40,6 +40,16 @@ bld/
 # Local playwright installation
 playwright.ps1
 
+# User Secrets (CRITICAL - Never commit credentials!)
+Properties/launchSettings.json
+*.json.user
+secrets.json
+
+# Environment files with secrets
+.env
+.env.local
+appsettings.local.json
+
 # Playwright test artifacts
 test-results/
 blob-report/

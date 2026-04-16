@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.Playwright;
+using PlaywrightTests.Utilities;
 using static Microsoft.Playwright.Assertions;
 
 namespace PlaywrightTests.Pages
@@ -55,6 +56,17 @@ namespace PlaywrightTests.Pages
             await loginButton.ClickAsync();
             await Assertions.Expect(dashboardHeader).ToBeVisibleAsync(new() { Timeout = 15000 });
         }
+        
+        /// <summary>
+        /// Submits login form with credentials retrieved from user secrets or environment variables.
+        /// </summary>
+        public async Task SubmitLoginAsync()
+        {
+            string Username = CredentialsHelper.GetUsername();
+            string Password = CredentialsHelper.GetPassword();
+            await SubmitLoginAsync(Username, Password);
+        }
+        
         public async Task SearchProductAsync(string searchTerm)
         {
             await searchBox.FillAsync(searchTerm);

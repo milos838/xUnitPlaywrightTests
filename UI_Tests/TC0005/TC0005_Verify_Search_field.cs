@@ -42,7 +42,7 @@ public class TC0005_Verify_Search_Field: PageTest
         Console.WriteLine("TC0005: Verify Search Field is started!");
 
         await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync(testData!.Username!, testData!.Password!);
+        await homePage.SubmitLoginAsync();
         await homePage.AssertSearchBoxVisibleAsync();
         await homePage.SearchProductAsync(testData!.SearchTerm!);
         await homePage.AssertSearchedProductVisibleAsync();

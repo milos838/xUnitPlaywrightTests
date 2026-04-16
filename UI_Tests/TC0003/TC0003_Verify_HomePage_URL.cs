@@ -42,7 +42,7 @@ public class TC0003_Verify_HomePage_URL: PageTest
         Console.WriteLine("TC0003: Verify HomePage URL is started!");
 
         await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync(testData!.Username!, testData!.Password!);
+        await homePage.SubmitLoginAsync();
         await homePage.AssertURLAsync(testData!.ExpectedURL!);
 
         Console.WriteLine("TC0003: Verify HomePage URL is completed!");

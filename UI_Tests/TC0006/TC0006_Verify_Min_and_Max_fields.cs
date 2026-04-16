@@ -42,7 +42,7 @@ public class TC0006_Verify_Min_and_Max_fields: PageTest
         Console.WriteLine("TC0006: Verify Min and Max fields is started!");
 
         await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync(testData!.Username!, testData!.Password!);
+        await homePage.SubmitLoginAsync();
         await homePage.AssertPriceFilterFieldsVisibleAsync();
         await homePage.SetPriceFilterAsync(testData!.MinPrice!, testData!.MaxPrice!);
         await homePage.AssertPriceSearchedProductVisibleAsync();

@@ -2,8 +2,6 @@
     "URL": "https://rahulshettyacademy.com/client/#/auth/login",
     "expectedURL" : "https://rahulshettyacademy.com/client/#/dashboard/dash",
     "expectedTitle": "Let's Shop",
-    "username": "milos.jancic83@gmail.com",
-    "password": "mikitest83",
     "searchTerm": "ADIDAS",
     "minPrice": "50000",
     "maxPrice": "60000",
@@ -11,6 +9,4 @@
     "category2": "electronics",
     "category3": "household",
     "product": "ZARA COAT 3"
-    
-
 }

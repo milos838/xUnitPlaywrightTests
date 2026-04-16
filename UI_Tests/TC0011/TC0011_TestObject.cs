@@ -6,12 +6,6 @@ public class TC0011_TestObject
     [JsonPropertyName("URL")]
     public string? URL { get; set; }
 
-    [JsonPropertyName("username")]
-    public string? Username { get; set; }
-
-    [JsonPropertyName("password")]
-    public string? Password { get; set; }
-
     [JsonPropertyName("product")]
     public string? Product { get; set; }
 }

@@ -44,7 +44,7 @@ public class TC0001_Verify_Login_function: PageTest
 
         await homePage.NavigateAsync(testData!.URL!);
         await homePage.AssertLoginFieldsVisibleAsync();
-        await homePage.SubmitLoginAsync(testData!.Username!, testData!.Password!);
+        await homePage.SubmitLoginAsync();
         await homePage.AssertDashboardHeaderVisibleAsync();
 
         Console.WriteLine("TC0001: Verify Login function is completed!");
