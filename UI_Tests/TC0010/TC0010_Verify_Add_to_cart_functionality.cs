@@ -43,7 +43,7 @@ public class TC0010_Verify_Add_to_cart_functionality: PageTest
         Console.WriteLine("TC0010: Verify Add to Cart functionality is started!");
 
         await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync(testData!.Username!, testData!.Password!);
+        await homePage.SubmitLoginAsync();
         await homePage.AddToCartAsync(testData!.Product!);
         await homePage.GoToCartAsync();
         await cartPage.AssertProductInCartAsync(testData!.Product!);
