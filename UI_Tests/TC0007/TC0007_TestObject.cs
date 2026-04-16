@@ -6,11 +6,6 @@ namespace PlaywrightTests
         [JsonPropertyName("URL")]
         public string? URL { get; set; }
         
-        [JsonPropertyName("username")]
-        public string? Username { get; set; }
-
-        [JsonPropertyName("password")]
-        public string? Password { get; set; }
         [JsonPropertyName("category1")]
         public string? Category1 { get; set; }
         [JsonPropertyName("category2")]

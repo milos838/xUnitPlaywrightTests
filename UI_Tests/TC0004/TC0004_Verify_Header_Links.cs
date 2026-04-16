@@ -43,7 +43,7 @@ public class TC0004_Verify_Header_Links: PageTest
         Console.WriteLine("TC0004: Verify Header Links is started!");
 
         await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync(testData!.Username!, testData!.Password!);
+        await homePage.SubmitLoginAsync();
         await homePage.AssertHeaderLinksVisibleAsync();
 
         Console.WriteLine("TC0004: Verify Header Links is completed!");

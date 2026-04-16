@@ -42,7 +42,7 @@ public class TC0007_Verify_Categories_fields: PageTest
         Console.WriteLine("TC0007: Verify Categories fields is started!");
 
         await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync(testData!.Username!, testData!.Password!);
+        await homePage.SubmitLoginAsync();
         await homePage.AssertCategoryCheckBoxesVisibleAsync();
         await homePage.CheckFashionBoxAsync();
         await homePage.CheckElectronicsBoxAsync();
