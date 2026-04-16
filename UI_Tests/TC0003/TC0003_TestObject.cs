@@ -8,9 +8,5 @@ namespace PlaywrightTests
         public string? URL { get; set; }
         [JsonPropertyName("expectedURL")]
         public string? ExpectedURL { get; set; }
-        [JsonPropertyName("username")]
-        public string? Username { get; set; }   
-        [JsonPropertyName("password")]
-        public string? Password { get; set; }
     }
 }

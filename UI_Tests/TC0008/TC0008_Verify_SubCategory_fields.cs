@@ -42,7 +42,7 @@ public class TC0008_Verify_SubCategory_fields: PageTest
         Console.WriteLine("TC0008: Verify Sub Categories fields is started!");
 
         await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync(testData!.Username!, testData!.Password!);
+        await homePage.SubmitLoginAsync();
         await homePage.AssertSubCategoryCheckBoxesVisibleAsync();
         await homePage.CheckTShirtsBoxAsync();  
         await homePage.AssertSubCategoryTShirtsCheckBoxCheckedAsync();

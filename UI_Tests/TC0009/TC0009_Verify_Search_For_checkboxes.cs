@@ -42,7 +42,7 @@ public class TC0009_Verify_Search_For_checkboxes: PageTest
         Console.WriteLine("TC0009: Verify Search For checkboxes is started!");
 
         await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync(testData!.Username!, testData!.Password!);
+        await homePage.SubmitLoginAsync();
         await homePage.AssertSearchForMenBoxVisibleAsync();
         await homePage.AssertSearchForWomenBoxVisibleAsync();
         await homePage.CheckSearchForMenBoxAsync();

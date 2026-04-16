@@ -44,7 +44,7 @@ public class TC0011_Verify_Delete_from_cart_functionality: PageTest
         Console.WriteLine("TC0011: Verify Delete from Cart functionality is started!");
 
         await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync(testData!.Username!, testData!.Password!);
+        await homePage.SubmitLoginAsync();
         await homePage.AddToCartAsync(testData!.Product!);
         await homePage.GoToCartAsync();
         await cartPage.AssertBuyButtonVisibleAsync();
