@@ -11,6 +11,8 @@ namespace PlaywrightTests.Pages
         private ILocator buyButton => _page.Locator("//*[contains(text(), 'Buy Now')]");
         private ILocator checkoutButton => _page.Locator("//*[contains(text(), 'Checkout')]");
         private ILocator noCartitemsMessage => _page.Locator("//*[contains(text(), 'No Products in Your Cart !')]");
+        private ILocator placeOrderButton => _page.Locator("//*[contains(text(), 'Place Order')]");
+       
 
         // Constructor 
         public CartPage(IPage page)
@@ -30,6 +32,18 @@ namespace PlaywrightTests.Pages
             {
                 throw new Exception($"Product '{product}' not found in the cart.");
             }
+        }
+        public async Task ClickBuyNowAsync()
+        {
+            await buyButton.ClickAsync();
+        }
+        public async Task ClickCheckoutAsync()
+        {
+            await checkoutButton.ClickAsync();
+        }
+        public async Task ClickPlaceOrderAsync()
+        {
+            await placeOrderButton.ClickAsync();
         }
 
         //Assertions
@@ -71,6 +85,10 @@ namespace PlaywrightTests.Pages
         public async Task AssertNoCartItemsMessageVisibleAsync()
         {
             await Expect(noCartitemsMessage).ToBeVisibleAsync();
+        }
+        public async Task AssertPlaceOrderButtonVisibleAsync()
+        {
+            await Expect(placeOrderButton).ToBeVisibleAsync();
         }
 }
 }
