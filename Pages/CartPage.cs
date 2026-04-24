@@ -12,6 +12,7 @@ namespace PlaywrightTests.Pages
         private ILocator checkoutButton => _page.Locator("//*[contains(text(), 'Checkout')]");
         private ILocator noCartitemsMessage => _page.Locator("//*[contains(text(), 'No Products in Your Cart !')]");
         private ILocator placeOrderButton => _page.Locator("//*[contains(text(), 'Place Order')]");
+        private ILocator continueShoppingButton => _page.Locator("//*[contains(text(), 'Continue Shopping')]");
        
 
         // Constructor 
@@ -89,6 +90,14 @@ namespace PlaywrightTests.Pages
         public async Task AssertPlaceOrderButtonVisibleAsync()
         {
             await Expect(placeOrderButton).ToBeVisibleAsync();
+        }
+        public async Task AssertContinueShoppingButtonVisibleAsync()
+        {
+            await Expect(continueShoppingButton).ToBeVisibleAsync();
+        }
+        public async Task ClickContinueShoppingAsync()
+        {
+            await continueShoppingButton.ClickAsync();
         }
 }
 }
