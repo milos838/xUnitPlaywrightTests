@@ -31,7 +31,9 @@ This repository contains a Playwright-based automated test suite written in C# a
    ```bash
    dotnet restore
 
-** Credentials**
+
+## ** Credentials**
+
 This project uses Utilities/CredentialsHelper.cs to retrieve credentials from:
 
 User secrets
@@ -42,7 +44,8 @@ TEST_USERNAME
 TEST_PASSWORD
 For detailed instructions, see CREDENTIALS_SETUP.md.
 
-**Test Data**
+## **Test Data**
+
 The suite reads data from HomePage.json. Example keys:
 
 URL
@@ -54,7 +57,8 @@ maxPrice
 category1, category2, category3
 product
 
-**Trace Files**
+## **Trace Files**
+
 The tests use Components.cs to record Playwright traces:
 
 TraceViewerComponent.StartTraceAsync(...)
@@ -63,7 +67,8 @@ Trace files are saved to:
 
 playwright-traces/
 
-**Test Cases**
+## **Test Cases**
+
 The suite currently includes checks for:
 
 TC0001 — Verify login function
@@ -82,7 +87,8 @@ TC0013 — Verify Checkout
 TC0014 — Verify Continue Shopping functionality
 
 
-**Contributing**
+## **Contributing**
+
 To add a new test:
 
 Create a new test class under UI_Tests/TC00xx/
