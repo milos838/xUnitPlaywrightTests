@@ -1,103 +1,163 @@
 # xUnit Playwright Tests
 
-Automated UI tests for the Rahul Shetty Academy demo web app using `Microsoft.Playwright` and `xUnit`.
+## Description
 
-## Overview
+A Playwright-based automated UI test suite for the Rahul Shetty Academy demo e-commerce web application. Built with C#, .NET 10, and xUnit, this project uses a Page Object Model architecture to centralize page actions, secure credential handling, and trace-based debugging.
 
-This repository contains a Playwright-based automated test suite written in C# and .NET 10. The suite uses:
-- `Microsoft.Playwright.Xunit`
-- `xUnit`
-- `Microsoft.Extensions.Configuration.UserSecrets`
-- Page Object Model for reusable UI actions
+## Table of Contents
+
+- [Description](#description)
+- [Repository Structure](#repository-structure)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Features](#features)
+- [Configuration](#configuration)
+- [CI/CD](#cicd)
+- [Contributing](#contributing)
+- [Notes](#notes)
 
 ## Repository Structure
 
-- `PlaywrightTests.csproj` — project definition and dependencies
-- `UI_Tests/` — test cases grouped by TC number
-- `Pages/` — page objects and shared helpers
-- `Data/` — JSON test data
-- `Utilities/` — helper classes like credential loading
-- `CREDENTIALS_SETUP.md` — secure credentials setup guide
+- `PlaywrightTests.csproj` — project definition and dependency list
+- `UI_Tests/` — test classes organized by TC number
+- `Pages/` — page object implementations and tracing helpers
+- `Data/` — JSON-driven test input data
+- `Utilities/` — helper utilities such as credentials management
+- `.github/workflows/playwright-tests.yml` — GitHub Actions test pipeline
+- `CREDENTIALS_SETUP.md` — secure credential setup guide
 
-## Prerequisites
+## Installation
+
+### Prerequisites
 
 - .NET 10 SDK
-- Playwright CLI/browser dependencies
-- Windows PowerShell or a compatible command shell
+- Playwright browser dependencies
+- Windows PowerShell or compatible shell
 
-## Setup
+### Setup Steps
 
-1. Restore packages:
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd xUnitPlaywrightTests
+   ```
+
+2. **Restore dependencies**:
    ```bash
    dotnet restore
+   ```
 
+3. **Install Playwright browsers**:
+   ```bash
+   dotnet tool install --global Microsoft.Playwright.CLI
+   playwright install
+   ```
 
-## ** Credentials**
+4. **Configure credentials** (see [Configuration](#configuration)).
 
-This project uses Utilities/CredentialsHelper.cs to retrieve credentials from:
+## Usage
 
-User secrets
-Environment variables
-Supported environment variables:
+### Running Tests
 
-TEST_USERNAME
-TEST_PASSWORD
-For detailed instructions, see CREDENTIALS_SETUP.md.
+Run all tests:
+```bash
+dotnet test PlaywrightTests.csproj
+```
 
-## **Test Data**
+Run a single test by fully qualified name:
+```bash
+dotnet test --filter FullyQualifiedName~TC0014_Verify_ContinueShopping_Functionality
+```
 
-The suite reads data from HomePage.json. Example keys:
+### Viewing Traces
 
-URL
-expectedURL
-expectedTitle
-searchTerm
-minPrice
-maxPrice
-category1, category2, category3
-product
+Playwright traces are recorded for each test and saved to `playwright-traces/`.
+Use the Playwright trace viewer to inspect a trace:
+```bash
+playwright show-trace playwright-traces/TC0014_Verify_ContinueShopping_Functionality.VerifyContinueShoppingFunctionality.zip
+```
 
-## **Trace Files**
+### Debugging Failed Tests
 
-The tests use Components.cs to record Playwright traces:
+- Review trace files in `playwright-traces/`
+- Consult the page object methods in `Pages/HomePage.cs` and `Pages/CartPage.cs`
+- Check the JSON data values in `Data/HomePage.json`
 
-TraceViewerComponent.StartTraceAsync(...)
-TraceViewerComponent.StopTraceAsync(...)
-Trace files are saved to:
+## Features
 
-playwright-traces/
+- **14 automated test cases** covering login, search, filtering, cart behavior, checkout, and continue shopping flows
+- **Page Object Model** for reusable page actions in `Pages/`
+- **Secure credential management** using user secrets or environment variables
+- **Trace recording** with screenshots, snapshots, and sources
+- **Centralized test input** in `Data/HomePage.json`
+- **GitHub Actions integration** for CI/CD validation
 
-## **Test Cases**
+## Configuration
 
-The suite currently includes checks for:
+### Credentials
 
-TC0001 — Verify login function
-TC0002 — Verify home page title
-TC0003 — Verify home page URL
-TC0004 — Verify header links
-TC0005 — Verify search field
-TC0006 — Verify min/max price fields
-TC0007 — Verify category fields
-TC0008 — Verify subcategory fields
-TC0009 — Verify search checkboxes
-TC0010 — Verify add to cart functionality
-TC0011 — Verify delete from cart functionality
-TC0012 — Verify Buy Now
-TC0013 — Verify Checkout
-TC0014 — Verify Continue Shopping functionality
+Credentials are loaded from `Utilities/CredentialsHelper.cs`. Supported sources:
 
+1. **User Secrets** (recommended for local development):
+   ```bash
+   dotnet user-secrets set "Credentials:Username" "<username>"
+   dotnet user-secrets set "Credentials:Password" "<password>"
+   ```
 
-## **Contributing**
+2. **Environment Variables** (for CI/CD):
+   ```powershell
+   $env:TEST_USERNAME = "<username>"
+   $env:TEST_PASSWORD = "<password>"
+   ```
+
+For detailed instructions, see `CREDENTIALS_SETUP.md`.
+
+### Test Data
+
+Data values are defined in `Data/HomePage.json`.
+Update these fields to change the test inputs:
+```json
+{
+  "URL": "https://rahulshettyacademy.com/client/#/auth/login",
+  "expectedURL": "https://rahulshettyacademy.com/client/#/dashboard/dash",
+  "expectedTitle": "Let's Shop",
+  "searchTerm": "ADIDAS",
+  "minPrice": "50000",
+  "maxPrice": "60000",
+  "category1": "fashion",
+  "category2": "electronics",
+  "category3": "household",
+  "product": "ZARA COAT 3"
+}
+```
+
+## CI/CD
+
+The repository includes a GitHub Actions workflow at `.github/workflows/playwright-tests.yml`.
+
+The workflow:
+- checks out the code
+- sets up .NET 10
+- restores dependencies
+- builds the project
+- installs Playwright browsers using `pwsh bin/Release/net10.0/playwright.ps1 install`
+- runs tests and generates a TRX report
+- uploads test results as an artifact
+- publishes results using the EnricoMi action
+
+## Contributing
 
 To add a new test:
+1. Create a new folder under `UI_Tests/TC00xx/`.
+2. Add a `_TestObject.cs` file for JSON data deserialization.
+3. Add a `_Verify_<feature>.cs` file for test logic.
+4. Use existing page objects from `Pages/`.
+5. Update `Data/HomePage.json` with new test values.
+6. Follow naming conventions: `TC00xx_Verify_<Feature>.cs`.
 
-Create a new test class under UI_Tests/TC00xx/
-Use existing page objects in Pages
-Add or reuse JSON test data in Data
-Keep naming consistent: TC00xx_Verify_<feature>.cs
+## Notes
 
-
-**Notes**
-Do not commit credentials or secret files.
-Credentials should be stored securely using user secrets or CI environment variables.
-The current page object model helps keep tests maintainable and reusable.
+- Do not commit credentials, secrets, or `.env` files.
+- Use secure storage for credentials and environment configuration.
+- `Pages/HomePage.cs` and `Pages/CartPage.cs` contain the main reusable UI actions.
+- Trace artifacts are stored in `playwright-traces/` and can be opened with Playwright Inspector.
