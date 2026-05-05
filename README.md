@@ -112,6 +112,8 @@ Credentials are loaded from `Utilities/CredentialsHelper.cs`. Supported sources:
 
 For detailed instructions, see `CREDENTIALS_SETUP.md`.
 
+> On GitHub Actions, set repository secrets named `TEST_USERNAME` and `TEST_PASSWORD` so CI can run login tests without storing credentials in source control.
+
 ### Test Data
 
 Data values are defined in `Data/HomePage.json`.
