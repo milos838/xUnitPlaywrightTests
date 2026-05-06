@@ -1,8 +1,6 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using System.Text.Json;
-using System.Reflection;
-using Xunit.Sdk;
 using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
@@ -37,15 +35,11 @@ public class TC0006_Verify_Min_and_Max_fields: PageTest
     public async Task VerifyMinAndMaxFields()
     {
         LoadTestData();
-        var homePage = new Pages.HomePage(Page);
+        var managerPage = new Pages.ManagerPage(Page);
 
         Console.WriteLine("TC0006: Verify Min and Max fields is started!");
 
-        await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync();
-        await homePage.AssertPriceFilterFieldsVisibleAsync();
-        await homePage.SetPriceFilterAsync(testData!.MinPrice!, testData!.MaxPrice!);
-        await homePage.AssertPriceSearchedProductVisibleAsync();
+        await managerPage.VerifyPriceFilterAsync(testData!.URL!, testData!.MinPrice!, testData!.MaxPrice!);
         Console.WriteLine("TC0006: Verify Min and Max fields is completed!");
     }
 }

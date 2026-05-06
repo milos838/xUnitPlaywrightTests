@@ -2,8 +2,6 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using System.Text.Json;
-using System.Reflection;
-using Xunit.Sdk;
 using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
@@ -38,14 +36,11 @@ public class TC0001_Verify_Login_function: PageTest
     public async Task VerifyLoginFunctions()
     {
         LoadTestData();
-        var homePage = new Pages.HomePage(Page);
+        var managerPage = new Pages.ManagerPage(Page);
 
         Console.WriteLine("TC0001: Verify Login function is started!");
 
-        await homePage.NavigateAsync(testData!.URL!);
-        await homePage.AssertLoginFieldsVisibleAsync();
-        await homePage.SubmitLoginAsync();
-        await homePage.AssertDashboardHeaderVisibleAsync();
+        await managerPage.VerifyLoginFunctionAsync(testData!.URL!);
 
         Console.WriteLine("TC0001: Verify Login function is completed!");
     }

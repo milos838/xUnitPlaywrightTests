@@ -1,8 +1,6 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using System.Text.Json;
-using System.Reflection;
-using Xunit.Sdk;
 using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
@@ -34,19 +32,11 @@ public class TC0013_Verify_Checkout_Functionality: PageTest
     public async Task VerifyCheckoutFunctionality()
     {
         LoadTestData();
-        var homePage = new Pages.HomePage(Page);
-        var cartPage = new CartPage(Page);
+        var managerPage = new Pages.ManagerPage(Page);
 
         Console.WriteLine("TC0013: Verify Checkout functionality is started!");
 
-        await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync();
-        await homePage.AddToCartAsync(testData!.Product!);
-        await homePage.GoToCartAsync();
-        await cartPage.AssertCheckoutButtonVisibleAsync();
-        await cartPage.ClickCheckoutAsync();
-        await cartPage.AssertPlaceOrderButtonVisibleAsync();
-
+        await managerPage.CheckoutAndVerifyAsync(testData!.URL!, testData!.Product!);
 
         Console.WriteLine("TC0013: Verify Checkout functionality is completed!");
     }

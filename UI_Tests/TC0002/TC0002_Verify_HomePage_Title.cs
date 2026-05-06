@@ -2,8 +2,6 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using System.Text.Json;
-using System.Reflection;
-using Xunit.Sdk;
 using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
@@ -38,12 +36,11 @@ public class TC0002_Verify_HomePage_Title: PageTest
     public async Task VerifyHomePageTitle()
     {
         LoadTestData();
-        var homePage = new Pages.HomePage(Page);
+        var managerPage = new Pages.ManagerPage(Page);
 
         Console.WriteLine("TC0002: Verify HomePage Title is started!");
 
-        await homePage.NavigateAsync(testData!.URL!);
-        await homePage.AssertPageTitleAsync(testData!.ExpectedTitle!);
+        await managerPage.NavigateAndVerifyHomeTitleAsync(testData!.URL!, testData!.ExpectedTitle!);
 
         Console.WriteLine("TC0002: Verify HomePage Title is completed!");
     }

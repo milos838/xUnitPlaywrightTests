@@ -1,8 +1,6 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using System.Text.Json;
-using System.Reflection;
-using Xunit.Sdk;
 using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
@@ -37,23 +35,11 @@ public class TC0008_Verify_SubCategory_fields: PageTest
     public async Task VerifySubCategoriesFields()
     {
         LoadTestData();
-        var homePage = new Pages.HomePage(Page);
+        var managerPage = new Pages.ManagerPage(Page);
 
         Console.WriteLine("TC0008: Verify Sub Categories fields is started!");
 
-        await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync();
-        await homePage.AssertSubCategoryCheckBoxesVisibleAsync();
-        await homePage.CheckTShirtsBoxAsync();  
-        await homePage.AssertSubCategoryTShirtsCheckBoxCheckedAsync();
-        await homePage.CheckShirtsBoxAsync();
-        await homePage.AssertSubCategoryShirtsCheckBoxCheckedAsync(); 
-        await homePage.CheckShoesBoxAsync();
-        await homePage.AssertSubCategoryShoesCheckBoxCheckedAsync();
-        await homePage.CheckMobilesBoxAsync();
-        await homePage.AssertSubCategoryMobilesCheckBoxCheckedAsync();
-        await homePage.CheckLaptopsBoxAsync();
-        await homePage.AssertSubCategoryLaptopsCheckBoxCheckedAsync();
+        await managerPage.VerifySubCategoryFiltersAsync(testData!.URL!);
         Console.WriteLine("TC0008: Verify Sub Categories fields is completed!");
     }
 }
