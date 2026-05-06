@@ -1,8 +1,6 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using System.Text.Json;
-using System.Reflection;
-using Xunit.Sdk;
 using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
@@ -37,15 +35,11 @@ public class TC0005_Verify_Search_Field: PageTest
     public async Task VerifySearchField()
     {
         LoadTestData();
-        var homePage = new Pages.HomePage(Page);
+        var managerPage = new Pages.ManagerPage(Page);
 
         Console.WriteLine("TC0005: Verify Search Field is started!");
 
-        await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync();
-        await homePage.AssertSearchBoxVisibleAsync();
-        await homePage.SearchProductAsync(testData!.SearchTerm!);
-        await homePage.AssertSearchedProductVisibleAsync();
+        await managerPage.VerifySearchFieldAsync(testData!.URL!, testData!.SearchTerm!);
 
         Console.WriteLine("TC0005: Verify Search Field is completed!");
     }

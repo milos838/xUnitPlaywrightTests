@@ -1,10 +1,7 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using System.Text.Json;
-using System.Reflection;
-using Xunit.Sdk;
 using PlaywrightTests.Pages;
-using static Microsoft.Playwright.Assertions;
 
 namespace PlaywrightTests;
 
@@ -38,19 +35,11 @@ public class TC0011_Verify_Delete_from_cart_functionality: PageTest
     public async Task VerifyDeleteFromCartFunctionality()
     {
         LoadTestData();
-        var homePage = new Pages.HomePage(Page);
-        var cartPage = new CartPage(Page);
+        var managerPage = new Pages.ManagerPage(Page);
 
         Console.WriteLine("TC0011: Verify Delete from Cart functionality is started!");
 
-        await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync();
-        await homePage.AddToCartAsync(testData!.Product!);
-        await homePage.GoToCartAsync();
-        await cartPage.AssertBuyButtonVisibleAsync();
-        await cartPage.DeleteProductFromCartAsync(testData!.Product!);
-        await cartPage.AssertNoCartItemsMessageVisibleAsync();
-        
+        await managerPage.DeleteProductFromCartAndVerifyAsync(testData!.URL!, testData!.Product!);
 
         Console.WriteLine("TC0011: Verify Delete from Cart functionality is completed!");
     }

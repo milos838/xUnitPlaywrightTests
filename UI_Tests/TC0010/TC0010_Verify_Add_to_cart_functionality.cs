@@ -1,8 +1,6 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using System.Text.Json;
-using System.Reflection;
-using Xunit.Sdk;
 using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
@@ -37,18 +35,11 @@ public class TC0010_Verify_Add_to_cart_functionality: PageTest
     public async Task VerifyAddToCartFunctionality()
     {
         LoadTestData();
-        var homePage = new Pages.HomePage(Page);
-        var cartPage = new CartPage(Page);
+        var managerPage = new Pages.ManagerPage(Page);
 
         Console.WriteLine("TC0010: Verify Add to Cart functionality is started!");
 
-        await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync();
-        await homePage.AddToCartAsync(testData!.Product!);
-        await homePage.GoToCartAsync();
-        await cartPage.AssertProductInCartAsync(testData!.Product!);
-        await cartPage.AssertProductAddedToCartAsync(testData!.Product!);
-        
+        await managerPage.AddProductToCartAndVerifyAsync(testData!.URL!, testData!.Product!);
 
         Console.WriteLine("TC0010: Verify Add to Cart functionality is completed!");
     }

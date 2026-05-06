@@ -2,8 +2,6 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using System.Text.Json;
-using System.Reflection;
-using Xunit.Sdk;
 using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
@@ -38,13 +36,11 @@ public class TC0004_Verify_Header_Links: PageTest
     public async Task VerifyHeaderLinks()
     {
         LoadTestData();
-        var homePage = new Pages.HomePage(Page);
+        var managerPage = new Pages.ManagerPage(Page);
 
         Console.WriteLine("TC0004: Verify Header Links is started!");
 
-        await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync();
-        await homePage.AssertHeaderLinksVisibleAsync();
+        await managerPage.VerifyHeaderLinksAsync(testData!.URL!);
 
         Console.WriteLine("TC0004: Verify Header Links is completed!");
     }
