@@ -31,6 +31,13 @@ public class TC0003_Verify_HomePage_URL: PageTest
         testData = JsonSerializer.Deserialize<TC0003_TestObject>(jsonContent);
     }
 
+    // Test Case Steps:
+    //
+    // 1. Navigate to the configured URL.
+    // 2. Submit login credentials.
+    // 3. Verify the current URL matches the expected home page URL.
+    //
+
     [Fact]
     public async Task VerifyHomePageURL()
     {

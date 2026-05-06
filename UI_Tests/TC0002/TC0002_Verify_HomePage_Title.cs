@@ -32,6 +32,12 @@ public class TC0002_Verify_HomePage_Title: PageTest
         testData = JsonSerializer.Deserialize<TC0002_TestObject>(jsonContent);
     }
 
+    // Test Case Steps:
+    //
+    // 1. Navigate to the configured URL.
+    // 2. Verify the home page title matches the expected title.
+    //
+
     [Fact]
     public async Task VerifyHomePageTitle()
     {

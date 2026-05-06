@@ -31,6 +31,15 @@ public class TC0007_Verify_Categories_fields: PageTest
         testData = JsonSerializer.Deserialize<TC0007_TestObject>(jsonContent);
     }
 
+    // Test Case Steps:
+    //
+    // 1. Navigate to the configured URL.
+    // 2. Submit login credentials.
+    // 3. Verify category checkboxes are visible.
+    // 4. Select the configured categories.
+    // 5. Verify the category filters are applied.
+    //
+
     [Fact]
     public async Task VerifyCategoriesFields()
     {

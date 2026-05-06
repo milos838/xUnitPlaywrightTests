@@ -31,6 +31,15 @@ public class TC0005_Verify_Search_Field: PageTest
         testData = JsonSerializer.Deserialize<TC0005_TestObject>(jsonContent);
     }
 
+    // Test Case Steps:
+    //
+    // 1. Navigate to the configured URL.
+    // 2. Submit login credentials.
+    // 3. Verify the search field is visible.
+    // 4. Search for the configured term.
+    // 5. Verify the searched product is visible.
+    //
+
     [Fact]
     public async Task VerifySearchField()
     {

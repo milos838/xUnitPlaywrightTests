@@ -28,6 +28,16 @@ public class TC0012_Verify_BuyNow_functionality: PageTest
         testData = JsonSerializer.Deserialize<TC0012_TestObject>(jsonContent);
     }
 
+    // Test Case Steps:
+    //
+    // 1. Navigate to the configured URL.
+    // 2. Submit login credentials.
+    // 3. Add the configured product to the cart.
+    // 4. Go to the shopping cart.
+    // 5. Click Buy Now.
+    // 6. Verify the order placement option is visible.
+    //
+
     [Fact]
     public async Task VerifyBuyNowFunctionality()
     {

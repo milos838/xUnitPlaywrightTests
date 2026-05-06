@@ -31,6 +31,15 @@ public class TC0008_Verify_SubCategory_fields: PageTest
         testData = JsonSerializer.Deserialize<TC0008_TestObject>(jsonContent);
     }
 
+    // Test Case Steps:
+    //
+    // 1. Navigate to the configured URL.
+    // 2. Submit login credentials.
+    // 3. Verify subcategory checkboxes are visible.
+    // 4. Select the configured subcategories.
+    // 5. Verify the subcategory selections are applied.
+    //
+
     [Fact]
     public async Task VerifySubCategoriesFields()
     {

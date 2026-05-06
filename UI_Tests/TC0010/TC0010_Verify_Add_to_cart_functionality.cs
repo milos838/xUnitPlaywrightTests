@@ -31,6 +31,15 @@ public class TC0010_Verify_Add_to_cart_functionality: PageTest
         testData = JsonSerializer.Deserialize<TC0010_TestObject>(jsonContent);
     }
 
+    // Test Case Steps:
+    //
+    // 1. Navigate to the configured URL.
+    // 2. Submit login credentials.
+    // 3. Add the configured product to the cart.
+    // 4. Go to the shopping cart.
+    // 5. Verify the product is added to the cart.
+    //
+
     [Fact]
     public async Task VerifyAddToCartFunctionality()
     {

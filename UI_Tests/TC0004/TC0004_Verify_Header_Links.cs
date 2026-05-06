@@ -32,6 +32,13 @@ public class TC0004_Verify_Header_Links: PageTest
         testData = JsonSerializer.Deserialize<TC0004_TestObject>(jsonContent);
     }
 
+    // Test Case Steps:
+    //
+    // 1. Navigate to the configured URL.
+    // 2. Submit login credentials.
+    // 3. Verify the header links are visible.
+    //
+
     [Fact]
     public async Task VerifyHeaderLinks()
     {
