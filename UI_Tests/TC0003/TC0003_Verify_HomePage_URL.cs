@@ -2,8 +2,6 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using System.Text.Json;
-using System.Reflection;
-using Xunit.Sdk;
 using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
@@ -37,13 +35,11 @@ public class TC0003_Verify_HomePage_URL: PageTest
     public async Task VerifyHomePageURL()
     {
         LoadTestData();
-        var homePage = new Pages.HomePage(Page);
+        var managerPage = new Pages.ManagerPage(Page);
 
         Console.WriteLine("TC0003: Verify HomePage URL is started!");
 
-        await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync();
-        await homePage.AssertURLAsync(testData!.ExpectedURL!);
+        await managerPage.VerifyHomePageURLAsync(testData!.URL!, testData!.ExpectedURL!);
 
         Console.WriteLine("TC0003: Verify HomePage URL is completed!");
     }
