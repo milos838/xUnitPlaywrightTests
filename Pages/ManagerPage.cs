@@ -172,5 +172,17 @@ namespace PlaywrightTests.Pages
             await _cartPage.ClickContinueShoppingAsync();
             await _homePage.AssertDashboardHeaderVisibleAsync();
         }
+
+        public async Task PlaceOrderAndVerifyAsync(string url, string productName, string country)
+        {
+            await _homePage.NavigateAsync(url);
+            await _homePage.SubmitLoginAsync();
+            await _homePage.AddToCartAsync(productName);
+            await _homePage.GoToCartAsync();
+            await _cartPage.ClickCheckoutAsync();
+            await _cartPage.FillSequentlyCountryAsync(country);
+            await _cartPage.ClickPlaceOrderAsync();
+            await _cartPage.OrderConfirmationMessageVisibleAsync();
+        }
     }
 }

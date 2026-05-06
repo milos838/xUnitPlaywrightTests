@@ -13,6 +13,9 @@ namespace PlaywrightTests.Pages
         private ILocator noCartitemsMessage => _page.Locator("//*[contains(text(), 'No Products in Your Cart !')]");
         private ILocator placeOrderButton => _page.Locator("//*[contains(text(), 'Place Order')]");
         private ILocator continueShoppingButton => _page.Locator("//*[contains(text(), 'Continue Shopping')]");
+
+        private ILocator selectCountry => _page.Locator("//input[@placeholder='Select Country']");
+        private ILocator orderConfirmationMessage => _page.Locator(".hero-primary");
        
 
         // Constructor 
@@ -45,6 +48,38 @@ namespace PlaywrightTests.Pages
         public async Task ClickPlaceOrderAsync()
         {
             await placeOrderButton.ClickAsync();
+        }
+
+        public async Task FillSequentlyCountryAsync(string country)
+        {
+            await selectCountry.ClickAsync();
+            await selectCountry.TypeAsync(country, new LocatorTypeOptions { Delay = 100 });
+            
+            // Wait for suggestions container to appear
+            var suggestionsContainer = _page.Locator(".ta-results");
+            await suggestionsContainer.WaitForAsync();
+            
+            // Add additional wait time for suggestions to populate
+            await _page.WaitForTimeoutAsync(500);
+            
+            // Get all suggestion buttons and iterate to find matching country
+            var suggestionButtons = _page.Locator(".ta-results .ng-star-inserted");
+            int count = await suggestionButtons.CountAsync();
+            
+            for (int i = 0; i < count; i++)
+            {
+                var buttonText = await suggestionButtons.Nth(i).TextContentAsync();
+                if (buttonText != null && buttonText.Contains(country, StringComparison.OrdinalIgnoreCase))
+                {
+                    await suggestionButtons.Nth(i).ClickAsync();
+                    break;
+                }
+            }
+        }
+        
+        public async Task OrderConfirmationMessageVisibleAsync()
+        {
+            await Expect(orderConfirmationMessage).ToBeVisibleAsync();
         }
 
         //Assertions
