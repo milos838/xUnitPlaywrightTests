@@ -32,6 +32,14 @@ public class TC0001_Verify_Login_function: PageTest
         testData = JsonSerializer.Deserialize<TC0001_TestObject>(jsonContent);
     }
 
+    // Test Case Steps:
+    //
+    // 1. Navigate to the configured URL.
+    // 2. Verify login fields are visible.
+    // 3. Submit login credentials.
+    // 4. Verify the dashboard header is displayed.
+    //
+
     [Fact]
     public async Task VerifyLoginFunctions()
     {

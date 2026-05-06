@@ -31,6 +31,15 @@ public class TC0006_Verify_Min_and_Max_fields: PageTest
         testData = JsonSerializer.Deserialize<TC0006_TestObject>(jsonContent);
     }
 
+    // Test Case Steps:
+    //
+    // 1. Navigate to the configured URL.
+    // 2. Submit login credentials.
+    // 3. Verify the price filter fields are visible.
+    // 4. Set the minimum and maximum price filters.
+    // 5. Verify the filtered product results are visible.
+    //
+
     [Fact]
     public async Task VerifyMinAndMaxFields()
     {

@@ -31,6 +31,16 @@ public class TC0011_Verify_Delete_from_cart_functionality: PageTest
         testData = JsonSerializer.Deserialize<TC0011_TestObject>(jsonContent);
     }
 
+    // Test Case Steps:
+    //
+    // 1. Navigate to the configured URL.
+    // 2. Submit login credentials.
+    // 3. Add the configured product to the cart.
+    // 4. Go to the shopping cart.
+    // 5. Delete the product from the cart.
+    // 6. Verify the cart is empty.
+    //
+
     [Fact]
     public async Task VerifyDeleteFromCartFunctionality()
     {

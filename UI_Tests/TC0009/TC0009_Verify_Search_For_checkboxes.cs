@@ -31,6 +31,15 @@ public class TC0009_Verify_Search_For_checkboxes: PageTest
         testData = JsonSerializer.Deserialize<TC0009_TestObject>(jsonContent);
     }
 
+    // Test Case Steps:
+    //
+    // 1. Navigate to the configured URL.
+    // 2. Submit login credentials.
+    // 3. Verify "Search For Men" and "Search For Women" checkboxes are visible.
+    // 4. Select both checkboxes.
+    // 5. Verify both checkbox selections are applied.
+    //
+
     [Fact]
     public async Task VerifySearchForCheckboxes()
     {
