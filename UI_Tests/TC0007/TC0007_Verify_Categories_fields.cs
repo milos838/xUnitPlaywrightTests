@@ -1,8 +1,6 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using System.Text.Json;
-using System.Reflection;
-using Xunit.Sdk;
 using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
@@ -37,19 +35,11 @@ public class TC0007_Verify_Categories_fields: PageTest
     public async Task VerifyCategoriesFields()
     {
         LoadTestData();
-        var homePage = new Pages.HomePage(Page);
+        var managerPage = new Pages.ManagerPage(Page);
 
         Console.WriteLine("TC0007: Verify Categories fields is started!");
 
-        await homePage.NavigateAsync(testData!.URL!);
-        await homePage.SubmitLoginAsync();
-        await homePage.AssertCategoryCheckBoxesVisibleAsync();
-        await homePage.CheckFashionBoxAsync();
-        await homePage.CheckElectronicsBoxAsync();
-        await homePage.CheckHouseholdBoxAsync();    
-        await homePage.AssertCategoryCheckBoxCheckedAsync(testData!.Category1!);
-        await homePage.AssertCategoryCheckBoxCheckedAsync(testData!.Category2!);
-        await homePage.AssertCategoryCheckBoxCheckedAsync(testData!.Category3!);
+        await managerPage.VerifyCategoryFiltersAsync(testData!.URL!, testData!.Category1!, testData!.Category2!, testData!.Category3!);
         Console.WriteLine("TC0007: Verify Categories fields is completed!");
     }
 }
