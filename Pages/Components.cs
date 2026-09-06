@@ -56,13 +56,11 @@ namespace PlaywrightTests.Pages
         public static async Task StopTraceAsync(IBrowserContext context, string className)
         {
             var testName = GetTestMethodName();
+            var traceDirectory = Path.Combine(Environment.CurrentDirectory, "playwright-traces");
+            Directory.CreateDirectory(traceDirectory);
             await context.Tracing.StopAsync(new()
             {
-                Path = Path.Combine(
-                    Environment.CurrentDirectory,
-                    "playwright-traces",
-                    $"{className}.{testName}.zip"
-                )
+                Path = Path.Combine(traceDirectory, $"{className}.{testName}.zip")
             });
         }
 
@@ -71,13 +69,11 @@ namespace PlaywrightTests.Pages
         /// </summary>
         public static async Task StopTraceAsync(IBrowserContext context, string className, string testName)
         {
+            var traceDirectory = Path.Combine(Environment.CurrentDirectory, "playwright-traces");
+            Directory.CreateDirectory(traceDirectory);
             await context.Tracing.StopAsync(new()
             {
-                Path = Path.Combine(
-                    Environment.CurrentDirectory,
-                    "playwright-traces",
-                    $"{className}.{testName}.zip"
-                )
+                Path = Path.Combine(traceDirectory, $"{className}.{testName}.zip")
             });
         }
     }

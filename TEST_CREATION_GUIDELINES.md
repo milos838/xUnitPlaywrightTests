@@ -157,6 +157,10 @@ public class TC000X_Verify_<DescriptionInPascalCase> : PageTest
 }
 ```
 
+For tests that mutate shared account-backed cart or order state, add
+`[Collection("Stateful account tests")]` above the test class. Keep read-only
+tests ungrouped so xUnit can execute them in parallel.
+
 ### Key Points
 
 - Class name must match filename (no spaces, PascalCase)
@@ -433,7 +437,7 @@ public class TC0016_Verify_WishlistFeature : PageTest
 - [ ] Assertions use `Expect()` from Playwright.Assertions
 - [ ] Locators in page objects follow priority order (role → testId → text → xpath)
 - [ ] Code compiles without errors
-- [ ] Test runs successfully: `dotnet test --filter FullyQualifiedName~TC000X`
+- [ ] Test runs successfully: `dotnet test PlaywrightTests.csproj --settings Playwright.runsettings --filter FullyQualifiedName~TC000X`
 
 ---
 
@@ -442,14 +446,18 @@ public class TC0016_Verify_WishlistFeature : PageTest
 ### Run All Tests
 
 ```bash
-dotnet test PlaywrightTests.csproj
+dotnet test PlaywrightTests.csproj --settings Playwright.runsettings
 ```
 
 ### Run Specific Test
 
 ```bash
-dotnet test --filter FullyQualifiedName~TC0016_Verify_WishlistFeature
+dotnet test PlaywrightTests.csproj --settings Playwright.runsettings --filter FullyQualifiedName~TC0016_Verify_WishlistFeature
 ```
+
+Select a browser with `-- Playwright.BrowserName=chromium`, `firefox`, or
+`webkit`. The default xUnit configuration allows up to four parallel workers;
+stateful account tests remain serialized through `Utilities/StatefulTestsCollection.cs`.
 
 ### View Trace File
 

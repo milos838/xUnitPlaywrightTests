@@ -5,6 +5,7 @@ using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
 
+[Collection("Stateful account tests")]
 public class TC0015_Verify_that_order_is_placed: PageTest
 {
     private TC0015_TestObject? testData;

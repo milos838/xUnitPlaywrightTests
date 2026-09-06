@@ -40,7 +40,7 @@ jobs:
 
       - name: Run tests
         # write a single known location for the TRX file
-        run: dotnet test --no-build --verbosity normal --logger "trx;LogFileName=TestResults/test-results.trx"
+        run: dotnet test --no-build --settings Playwright.runsettings --verbosity normal --logger "trx;LogFileName=TestResults/test-results.trx"
 
       - name: Upload test results
         if: always()

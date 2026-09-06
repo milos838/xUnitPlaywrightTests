@@ -7,7 +7,6 @@ namespace PlaywrightTests.Pages
     public class CartPage
     {
         private readonly IPage _page;
-        private ILocator deleteButton => _page.Locator(".btn-danger"); 
         private ILocator buyButton => _page.Locator("//*[contains(text(), 'Buy Now')]");
         private ILocator checkoutButton => _page.Locator("//*[contains(text(), 'Checkout')]");
         private ILocator noCartitemsMessage => _page.Locator("//*[contains(text(), 'No Products in Your Cart !')]");
@@ -27,15 +26,28 @@ namespace PlaywrightTests.Pages
         //Functions or methods
         public async Task DeleteProductFromCartAsync(string product)
         {
-            var productLocator = _page.Locator($"text={product}");
-            if (await productLocator.IsVisibleAsync())
+            var productRow = _page.Locator(".cart")
+                .Filter(new() { HasText = product })
+                .First;
+
+            await Expect(productRow).ToBeVisibleAsync();
+            await productRow.Locator(".btn-danger").ClickAsync();
+            await Expect(productRow).ToBeHiddenAsync();
+        }
+
+        public async Task ClearCartAsync()
+        {
+            var deleteButtons = _page.Locator(".btn-danger");
+            var itemCount = await deleteButtons.CountAsync();
+
+            while (itemCount > 0)
             {
-                await deleteButton.ClickAsync();
+                await deleteButtons.First.ClickAsync();
+                itemCount--;
+                await Expect(deleteButtons).ToHaveCountAsync(itemCount);
             }
-            else
-            {
-                throw new Exception($"Product '{product}' not found in the cart.");
-            }
+
+            await AssertNoCartItemsMessageVisibleAsync();
         }
         public async Task ClickBuyNowAsync()
         {
@@ -53,28 +65,19 @@ namespace PlaywrightTests.Pages
         public async Task FillSequentlyCountryAsync(string country)
         {
             await selectCountry.ClickAsync();
-            await selectCountry.TypeAsync(country, new LocatorTypeOptions { Delay = 100 });
+            await selectCountry.FillAsync(string.Empty);
+            await selectCountry.PressSequentiallyAsync(country, new() { Delay = 100 });
             
-            // Wait for suggestions container to appear
             var suggestionsContainer = _page.Locator(".ta-results");
-            await suggestionsContainer.WaitForAsync();
-            
-            // Add additional wait time for suggestions to populate
-            await _page.WaitForTimeoutAsync(500);
-            
-            // Get all suggestion buttons and iterate to find matching country
-            var suggestionButtons = _page.Locator(".ta-results .ng-star-inserted");
-            int count = await suggestionButtons.CountAsync();
-            
-            for (int i = 0; i < count; i++)
-            {
-                var buttonText = await suggestionButtons.Nth(i).TextContentAsync();
-                if (buttonText != null && buttonText.Contains(country, StringComparison.OrdinalIgnoreCase))
-                {
-                    await suggestionButtons.Nth(i).ClickAsync();
-                    break;
-                }
-            }
+            await Expect(suggestionsContainer).ToBeVisibleAsync();
+
+            var matchingSuggestion = suggestionsContainer
+                .Locator(".ng-star-inserted")
+                .Filter(new() { HasText = country })
+                .First;
+
+            await Expect(matchingSuggestion).ToBeVisibleAsync();
+            await matchingSuggestion.ClickAsync();
         }
         
         public async Task OrderConfirmationMessageVisibleAsync()
@@ -108,7 +111,7 @@ namespace PlaywrightTests.Pages
         }
         public async Task AssertDeleteButtonVisibleAsync()
         {
-            await Expect(deleteButton).ToBeVisibleAsync();
+            await Expect(_page.Locator(".btn-danger").First).ToBeVisibleAsync();
         }
         public async Task AssertBuyButtonVisibleAsync()
         {
