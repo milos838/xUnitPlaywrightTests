@@ -39,15 +39,19 @@ jobs:
         run: pwsh bin/${{ env.CONFIGURATION }}/net10.0/playwright.ps1 install
 
       - name: Run tests
-        # write a single known location for the TRX file
-        run: dotnet test --no-build --settings Playwright.runsettings --verbosity normal --logger "trx;LogFileName=TestResults/test-results.trx"
+        # Keep the TRX output in a deterministic location for the upload and publish steps.
+        run: >-
+          dotnet test --no-build --settings Playwright.runsettings
+          --results-directory TestResults --verbosity normal
+          --logger "trx;LogFileName=test-results.trx"
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: TestResults/test-results.trx
+          path: TestResults
+          if-no-files-found: warn
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -58,5 +62,5 @@ jobs:
         if: always() && (github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository)
         uses: EnricoMi/publish-unit-test-result-action/windows@v2
         with:
-          files: 'TestResults/test-results.trx'
+          files: 'TestResults/**/*.trx'
           check_name: Playwright Test Results
