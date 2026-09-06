@@ -5,6 +5,7 @@ using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
 
+[Collection("Stateful account tests")]
 public class TC0012_Verify_BuyNow_functionality: PageTest
 {
     private TC0012_TestObject? testData;

@@ -5,6 +5,7 @@ using PlaywrightTests.Pages;
 
 namespace PlaywrightTests;
 
+[Collection("Stateful account tests")]
 public class TC0011_Verify_Delete_from_cart_functionality: PageTest
 {
     private TC0011_TestObject? testData;

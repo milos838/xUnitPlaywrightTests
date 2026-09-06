@@ -22,7 +22,9 @@ A Playwright-based automated UI test suite for the Rahul Shetty Academy demo e-c
 - `UI_Tests/` — test classes organized by TC number
 - `Pages/` — page object implementations and tracing helpers
 - `Data/` — JSON-driven test input data
-- `Utilities/` — helper utilities such as credentials management
+- `Utilities/` — helper utilities such as credentials management and xUnit collection definitions
+- `Playwright.runsettings` — default browser and Playwright launch settings
+- `xunit.runner.json` — xUnit parallel execution settings
 - `.github/workflows/playwright-tests.yml` — GitHub Actions test pipeline
 - `CREDENTIALS_SETUP.md` — secure credential setup guide
 
@@ -47,11 +49,13 @@ A Playwright-based automated UI test suite for the Rahul Shetty Academy demo e-c
    dotnet restore
    ```
 
-3. **Install Playwright browsers**:
+3. **Build and install Playwright browsers**:
    ```bash
-   dotnet tool install --global Microsoft.Playwright.CLI
-   playwright install
+   dotnet build --configuration Debug
+   pwsh bin/Debug/net10.0/playwright.ps1 install
    ```
+
+   For a Release build, use `bin/Release/net10.0/playwright.ps1` instead.
 
 4. **Configure credentials** (see [Configuration](#configuration)).
 
@@ -59,15 +63,43 @@ A Playwright-based automated UI test suite for the Rahul Shetty Academy demo e-c
 
 ### Running Tests
 
-Run all tests:
+Run all tests with the checked-in settings:
+```bash
+dotnet test PlaywrightTests.csproj --settings Playwright.runsettings
+```
+
+Run without the checked-in settings:
 ```bash
 dotnet test PlaywrightTests.csproj
 ```
 
-Run a single test by fully qualified name:
-```bash
-dotnet test --filter FullyQualifiedName~TC0014_Verify_ContinueShopping_Functionality
+The suite runs independent xUnit collections concurrently, capped at four worker
+threads by `xunit.runner.json`. TC0010 through TC0015 use the shared `Stateful
+account tests` collection in `Utilities/StatefulTestsCollection.cs`; those tests
+remain serialized because they use the same account-backed cart and order state.
+Each stateful workflow also clears the existing cart before starting.
+
+Run against a specific browser:
+```powershell
+dotnet test PlaywrightTests.csproj --settings Playwright.runsettings -- Playwright.BrowserName=chromium
+dotnet test PlaywrightTests.csproj --settings Playwright.runsettings -- Playwright.BrowserName=firefox
+dotnet test PlaywrightTests.csproj --settings Playwright.runsettings -- Playwright.BrowserName=webkit
 ```
+
+Use a headed browser locally:
+```powershell
+$env:HEADED = "1"
+dotnet test PlaywrightTests.csproj --settings Playwright.runsettings -- Playwright.BrowserName=chromium
+Remove-Item Env:HEADED
+```
+
+Run one test:
+```powershell
+dotnet test PlaywrightTests.csproj --settings Playwright.runsettings --filter FullyQualifiedName~TC0014_Verify_ContinueShopping_Functionality
+```
+
+For CI, run Chromium, Firefox, and WebKit as separate matrix jobs. Do not mix
+browsers in one test process.
 
 ### Viewing Traces
 
@@ -85,11 +117,12 @@ playwright show-trace playwright-traces/TC0014_Verify_ContinueShopping_Functiona
 
 ## Features
 
-- **14 automated test cases** covering login, search, filtering, cart behavior, checkout, and continue shopping flows
+- **15 automated test cases** covering login, search, filtering, cart behavior, checkout, and continue shopping flows
 - **Page Object Model** for reusable page actions in `Pages/`
 - **Secure credential management** using user secrets or environment variables
 - **Trace recording** with screenshots, snapshots, and sources
 - **Centralized test input** in `Data/HomePage.json`
+- **Stable cart workflows** with deterministic product rendering, country selection, and cart-row deletion
 - **GitHub Actions integration** for CI/CD validation
 
 ## Configuration
@@ -147,6 +180,10 @@ The workflow:
 - uploads test results as an artifact
 - publishes results using the EnricoMi action
 
+The local `Playwright.runsettings` file defaults to headless Chromium. Browser
+selection can be overridden with `Playwright.BrowserName=chromium`, `firefox`,
+or `webkit`.
+
 ## Contributing
 
 To add a new test:
@@ -155,11 +192,15 @@ To add a new test:
 3. Add a `_Verify_<feature>.cs` file for test logic.
 4. Use existing page objects from `Pages/`.
 5. Update `Data/HomePage.json` with new test values.
-6. Follow naming conventions: `TC00xx_Verify_<Feature>.cs`.
+6. Keep read-only tests outside the `Stateful account tests` collection so they can run in parallel.
+7. Add account-mutating tests to `Stateful account tests` and reset backend state before each workflow.
+8. Follow naming conventions: `TC00xx_Verify_<Feature>.cs`.
 
 ## Notes
 
 - Do not commit credentials, secrets, or `.env` files.
 - Use secure storage for credentials and environment configuration.
 - `Pages/HomePage.cs` and `Pages/CartPage.cs` contain the main reusable UI actions.
+- `Pages/ManagerPage.cs` coordinates workflows and resets the cart before stateful flows.
+- `Utilities/StatefulTestsCollection.cs` serializes tests that share account-backed state.
 - Trace artifacts are stored in `playwright-traces/` and can be opened with Playwright Inspector.

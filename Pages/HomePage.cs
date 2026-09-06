@@ -44,6 +44,13 @@ namespace PlaywrightTests.Pages
         {
             await _page.GotoAsync(url);
         }
+
+        public async Task NavigateToDashboardAsync(string loginUrl)
+        {
+            var dashboardUrl = loginUrl.Replace("#/auth/login", "#/dashboard/dash", StringComparison.OrdinalIgnoreCase);
+            await NavigateAsync(dashboardUrl);
+            await AssertDashboardHeaderVisibleAsync();
+        }
         public async Task SubmitLoginAsync(string Username, string Password)
         {
             await username.FillAsync(Username);
@@ -116,11 +123,6 @@ namespace PlaywrightTests.Pages
         public async Task AddToCartAsync(string product)
         {
             var productCard = _page.Locator(".card-body", new() { HasText = product }).First;
-            if (await productCard.CountAsync() == 0)
-            {
-                throw new InvalidOperationException($"Product '{product}' not found on page.");
-            }
-
             await Assertions.Expect(productCard).ToBeVisibleAsync(new() { Timeout = 15000 });
             await productCard.Locator("button", new() { HasText = "Add To Cart" }).ClickAsync();
         }
