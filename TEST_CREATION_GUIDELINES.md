@@ -86,9 +86,8 @@ public class TC000X_TestObject
 
 ```csharp
 using Microsoft.Playwright;
-using Microsoft.Playwright.Xunit;
-using System.Text.Json;
 using PlaywrightTests.Pages;
+using PlaywrightTests.Utilities;
 
 namespace PlaywrightTests;
 
@@ -96,66 +95,28 @@ namespace PlaywrightTests;
 /// Test case: [Brief description of what's being tested]
 /// Scope: [What functionality is covered]
 /// </summary>
-public class TC000X_Verify_<DescriptionInPascalCase> : PageTest
+public class TC000X_Verify_<DescriptionInPascalCase> : TracedPageTest
 {
     private TC000X_TestObject? testData;
-
-    // Initializes tracing for the test
-    public override async Task InitializeAsync()
-    {
-        await base.InitializeAsync().ConfigureAwait(false);
-        await TraceViewerComponent.StartTraceAsync(Context, this.GetType().Name);
-    }
-
-    // Disposes tracing after the test and saving the trace file
-    public override async Task DisposeAsync()
-    {
-        await TraceViewerComponent.StopTraceAsync(Context, this.GetType().Name);
-        await base.DisposeAsync().ConfigureAwait(false);
-    }
-
-    // Loads test data from the JSON file
-    private void LoadTestData()
-    {
-        string jsonPath = Path.Combine(AppContext.BaseDirectory, "../../../Data/HomePage.json");
-        string jsonContent = File.ReadAllText(jsonPath);
-        testData = JsonSerializer.Deserialize<TC000X_TestObject>(jsonContent);
-    }
-
-    // Test Case Steps:
-    //
-    // 1. [Step 1]
-    // 2. [Step 2]
-    // 3. [Step 3]
-    // ...
-    //
 
     [Fact]
     public async Task Verify<DescriptionInPascalCase>()
     {
-        LoadTestData();
+        testData = TestDataLoader.Load<TC000X_TestObject>("HomePage.json");
         var managerPage = new ManagerPage(Page);
 
         Console.WriteLine("TC000X: Verify <description> is started!");
 
-        // === TEST WORKFLOW ===
-        // Example pattern:
-        // 1. Navigate to the application
-        await managerPage.NavigateToAsync(testData!.URL!);
-
-        // 2. Perform login
         await managerPage.VerifyLoginFunctionAsync(testData!.URL!);
-
-        // 3. Perform specific action being tested
-        // [Action-specific code here]
-
-        // 4. Verify expected outcome
-        // [Assertion code here]
 
         Console.WriteLine("TC000X: Test Completed!");
     }
 }
 ```
+
+`TracedPageTest` starts and saves a Playwright trace for each test. Load data
+with `TestDataLoader.Load<T>("HomePage.json")`; the loader throws an
+`InvalidDataException` if deserialization returns null.
 
 For tests that mutate shared account-backed cart or order state, add
 `[Collection("Stateful account tests")]` above the test class. Keep read-only
@@ -164,10 +125,9 @@ tests ungrouped so xUnit can execute them in parallel.
 ### Key Points
 
 - Class name must match filename (no spaces, PascalCase)
-- Inherit from `PageTest` (from Microsoft.Playwright.Xunit)
-- Always include `InitializeAsync()` and `DisposeAsync()` for trace management
+- Inherit from `TracedPageTest`; it manages trace initialization and disposal
 - Method name decorated with `[Fact]` should match class name pattern
-- Load test data in a private method, not in the test method itself
+- Load test data with `TestDataLoader.Load<T>("HomePage.json")`
 - Use `Console.WriteLine()` for test logging
 - Include XML doc comments describing the test
 - Add step comments before actual code
@@ -339,9 +299,8 @@ public class TC0016_TestObject
 
 ```csharp
 using Microsoft.Playwright;
-using Microsoft.Playwright.Xunit;
-using System.Text.Json;
 using PlaywrightTests.Pages;
+using PlaywrightTests.Utilities;
 
 namespace PlaywrightTests;
 
@@ -349,57 +308,20 @@ namespace PlaywrightTests;
 /// Test case: Verify Wishlist Feature
 /// Scope: Tests adding and removing items from wishlist
 /// </summary>
-public class TC0016_Verify_WishlistFeature : PageTest
+public class TC0016_Verify_WishlistFeature : TracedPageTest
 {
     private TC0016_TestObject? testData;
-
-    public override async Task InitializeAsync()
-    {
-        await base.InitializeAsync().ConfigureAwait(false);
-        await TraceViewerComponent.StartTraceAsync(Context, this.GetType().Name);
-    }
-
-    public override async Task DisposeAsync()
-    {
-        await TraceViewerComponent.StopTraceAsync(Context, this.GetType().Name);
-        await base.DisposeAsync().ConfigureAwait(false);
-    }
-
-    private void LoadTestData()
-    {
-        string jsonPath = Path.Combine(AppContext.BaseDirectory, "../../../Data/HomePage.json");
-        string jsonContent = File.ReadAllText(jsonPath);
-        testData = JsonSerializer.Deserialize<TC0016_TestObject>(jsonContent);
-    }
-
-    // Test Case Steps:
-    //
-    // 1. Navigate to application
-    // 2. Login with credentials
-    // 3. Search for product
-    // 4. Add product to wishlist
-    // 5. Verify product appears in wishlist
-    //
 
     [Fact]
     public async Task VerifyWishlistFeature()
     {
-        LoadTestData();
+        testData = TestDataLoader.Load<TC0016_TestObject>("HomePage.json");
         var managerPage = new ManagerPage(Page);
 
         Console.WriteLine("TC0016: Verify Wishlist Feature is started!");
 
-        // 1. Navigate and login
         await managerPage.VerifyLoginFunctionAsync(testData!.URL!);
-
-        // 2. Search for product (add method to HomePage if needed)
         await managerPage.SearchProductAsync(testData!.Product!);
-
-        // 3. Add to wishlist (add method to HomePage if needed)
-        // await managerPage.AddProductToWishlistAsync(testData!.Product!);
-
-        // 4. Verify in wishlist
-        // await Expect(Page).ToContainTextAsync(testData!.Product!);
 
         Console.WriteLine("TC0016: Test Completed!");
     }
@@ -422,9 +344,8 @@ public class TC0016_Verify_WishlistFeature : PageTest
 - [ ] Folder named `TC000X` (zero-padded, 4 digits)
 - [ ] Two files created: `TC000X_TestObject.cs` and `TC000X_Verify_*.cs`
 - [ ] TestObject has `[JsonPropertyName]` attributes matching JSON keys
-- [ ] Test class inherits from `PageTest`
-- [ ] Test class has `InitializeAsync()` and `DisposeAsync()` for trace management
-- [ ] Test class has `LoadTestData()` private method
+- [ ] Test class inherits from `TracedPageTest`
+- [ ] Test data is loaded with `TestDataLoader.Load<T>("HomePage.json")`
 - [ ] Test method has `[Fact]` attribute and is `async Task`
 - [ ] Test method name matches class name pattern: `Verify<Description>()`
 - [ ] Test data added to `Data/HomePage.json`
@@ -503,7 +424,7 @@ playwright show-trace bin/Debug/net10.0/playwright-traces/TC0016_Verify_Wishlist
 
 1. **DRY Principle** — Don't repeat locator definitions; add to page objects
 2. **Meaningful Names** — Test and method names should describe what's tested
-3. **Trace First** — Always initialize/dispose traces for debugging
+3. **Trace First** — Inherit from `TracedPageTest` for automatic trace capture
 4. **JSON Data** — Centralize test data, don't hardcode
 5. **Async All the Way** — Never block threads with `.Result` or `.Wait()`
 6. **Fail Fast** — Add assertions immediately after actions
@@ -521,7 +442,7 @@ playwright show-trace bin/Debug/net10.0/playwright-traces/TC0016_Verify_Wishlist
 - Verify class name matches filename (no spaces)
 - Check namespace is `PlaywrightTests`
 - Ensure `[JsonPropertyName]` matches JSON keys exactly
-- Verify inheritance: `public class ... : PageTest`
+- Verify inheritance: `public class ... : TracedPageTest`
 
 ### Test Fails at Runtime
 
@@ -561,12 +482,15 @@ xUnitPlaywrightTests/
 ├── Data/
 │   └── HomePage.json  ← Add test data here
 ├── Utilities/
-│   └── CredentialsHelper.cs
+│   ├── CredentialsHelper.cs
+│   ├── StatefulTestsCollection.cs
+│   ├── TestDataLoader.cs
+│   └── TracedPageTest.cs
 └── PlaywrightTests.csproj
 ```
 
 ---
 
-**Last Updated:** 2026-06-12  
-**Version:** 1.0  
+**Last Updated:** 2026-10-08
+**Version:** 1.0
 **For Questions:** Refer to existing test cases (TC0001-TC0015) as reference implementations.
