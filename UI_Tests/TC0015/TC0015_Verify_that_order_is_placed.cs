@@ -1,33 +1,14 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
-using System.Text.Json;
 using PlaywrightTests.Pages;
+using PlaywrightTests.Utilities;
 
 namespace PlaywrightTests;
 
 [Collection("Stateful account tests")]
-public class TC0015_Verify_that_order_is_placed: PageTest
+public class TC0015_Verify_that_order_is_placed: TracedPageTest
 {
     private TC0015_TestObject? testData;
-
-    public override async Task InitializeAsync()
-    {
-        await base.InitializeAsync().ConfigureAwait(false);
-        await TraceViewerComponent.StartTraceAsync(Context, this.GetType().Name);
-    }
-
-    public override async Task DisposeAsync()
-    {
-        await TraceViewerComponent.StopTraceAsync(Context, this.GetType().Name);
-        await base.DisposeAsync().ConfigureAwait(false);
-    }
-
-    private void LoadTestData()
-    {
-        string jsonPath = Path.Combine(AppContext.BaseDirectory, "../../../Data/HomePage.json");
-        string jsonContent = File.ReadAllText(jsonPath);
-        testData = JsonSerializer.Deserialize<TC0015_TestObject>(jsonContent);
-    }
 
     // Test Case Steps:
     //
@@ -41,10 +22,11 @@ public class TC0015_Verify_that_order_is_placed: PageTest
     // 8. Verify that the order is placed successfully.
     //
 
+    [Trait("Category", "Smoke")]
     [Fact]
     public async Task VerifyThatOrderIsPlaced()
     {
-        LoadTestData();
+        testData = TestDataLoader.Load<TC0015_TestObject>("HomePage.json");
         var managerPage = new Pages.ManagerPage(Page);
 
         Console.WriteLine("TC0015: Verify that order is placed is started!");

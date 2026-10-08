@@ -1,33 +1,14 @@
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
-using System.Text.Json;
 using PlaywrightTests.Pages;
+using PlaywrightTests.Utilities;
 
 namespace PlaywrightTests;
 
 [Collection("Stateful account tests")]
-public class TC0012_Verify_BuyNow_functionality: PageTest
+public class TC0012_Verify_BuyNow_functionality: TracedPageTest
 {
     private TC0012_TestObject? testData;
-
-    public override async Task InitializeAsync()
-    {
-        await base.InitializeAsync().ConfigureAwait(false);
-        await TraceViewerComponent.StartTraceAsync(Context, this.GetType().Name);
-    }
-
-    public override async Task DisposeAsync()
-    {
-        await TraceViewerComponent.StopTraceAsync(Context, this.GetType().Name);
-        await base.DisposeAsync().ConfigureAwait(false);
-    }
-
-    private void LoadTestData()
-    {
-        string jsonPath = Path.Combine(AppContext.BaseDirectory, "../../../Data/HomePage.json");
-        string jsonContent = File.ReadAllText(jsonPath);
-        testData = JsonSerializer.Deserialize<TC0012_TestObject>(jsonContent);
-    }
 
     // Test Case Steps:
     //
@@ -42,7 +23,7 @@ public class TC0012_Verify_BuyNow_functionality: PageTest
     [Fact]
     public async Task VerifyBuyNowFunctionality()
     {
-        LoadTestData();
+        testData = TestDataLoader.Load<TC0012_TestObject>("HomePage.json");
         var managerPage = new Pages.ManagerPage(Page);
 
         Console.WriteLine("TC0012: Verify Buy Now functionality is started!");
