@@ -8,7 +8,7 @@ permissions:
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main, develop ]
 
@@ -38,7 +38,16 @@ jobs:
         # use the same configuration folder as build
         run: pwsh bin/${{ env.CONFIGURATION }}/net10.0/playwright.ps1 install
 
-      - name: Run tests
+      - name: Run Smoke tests after merge to main
+        if: github.event_name == 'push'
+        run: >-
+          dotnet test --no-build --settings Playwright.runsettings
+          --filter "Category=Smoke"
+          --results-directory TestResults --verbosity normal
+          --logger "trx;LogFileName=test-results.trx"
+
+      - name: Run full suite for pull requests
+        if: github.event_name == 'pull_request'
         # Keep the TRX output in a deterministic location for the upload and publish steps.
         run: >-
           dotnet test --no-build --settings Playwright.runsettings
