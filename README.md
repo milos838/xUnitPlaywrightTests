@@ -22,7 +22,7 @@ A Playwright-based automated UI test suite for the Rahul Shetty Academy demo e-c
 - `UI_Tests/` — test classes organized by TC number
 - `Pages/` — page object implementations and tracing helpers
 - `Data/` — JSON-driven test input data
-- `Utilities/` — helper utilities such as credentials management and xUnit collection definitions
+- `Utilities/` — credential management, shared test-data loading, trace setup, and xUnit collection definitions
 - `Playwright.runsettings` — default browser and Playwright launch settings
 - `xunit.runner.json` — xUnit parallel execution settings
 - `.github/workflows/playwright-tests.yml` — GitHub Actions test pipeline
@@ -98,8 +98,10 @@ Run one test:
 dotnet test PlaywrightTests.csproj --settings Playwright.runsettings --filter FullyQualifiedName~TC0014_Verify_ContinueShopping_Functionality
 ```
 
-For CI, run Chromium, Firefox, and WebKit as separate matrix jobs. Do not mix
-browsers in one test process.
+The standard GitHub Actions workflow runs smoke-category tests after a push to
+`main` and the full suite for pull requests targeting `main` or `develop`. The
+scheduled/manual cross-browser workflow runs the full suite in separate
+Chromium, Firefox, and WebKit jobs. Do not mix browsers in one test process.
 
 ### Viewing Traces
 
@@ -120,8 +122,9 @@ playwright show-trace playwright-traces/TC0014_Verify_ContinueShopping_Functiona
 - **15 automated test cases** covering login, search, filtering, cart behavior, checkout, and continue shopping flows
 - **Page Object Model** for reusable page actions in `Pages/`
 - **Secure credential management** using user secrets or environment variables
-- **Trace recording** with screenshots, snapshots, and sources
+- **Trace recording** with screenshots, snapshots, and sources, managed by the shared `TracedPageTest` base class
 - **Centralized test input** in `Data/HomePage.json`
+- **Shared JSON deserialization** through `Utilities/TestDataLoader.cs`
 - **Stable cart workflows** with deterministic product rendering, country selection, and cart-row deletion
 - **GitHub Actions integration** for CI/CD validation
 
@@ -168,17 +171,16 @@ Update these fields to change the test inputs:
 
 ## CI/CD
 
-The repository includes a GitHub Actions workflow at `.github/workflows/playwright-tests.yml`.
+The repository includes two GitHub Actions workflows:
 
-The workflow:
-- checks out the code
-- sets up .NET 10
-- restores dependencies
-- builds the project
-- installs Playwright browsers using `pwsh bin/Release/net10.0/playwright.ps1 install`
-- runs tests and generates a TRX report
-- uploads test results as an artifact
-- publishes results using the EnricoMi action
+- `.github/workflows/playwright-tests.yml` builds the project and installs
+  Playwright browsers. After pushes to `main`, it runs tests tagged
+  `[Trait("Category", "Smoke")]`; for pull requests targeting `main` or
+  `develop`, it runs the full suite. Both paths upload TRX results, which are
+  also published as a check.
+- `.github/workflows/weekly-cross-browser-tests.yml` runs the full suite on a
+  weekly schedule or manual dispatch, with separate Chromium, Firefox, and
+  WebKit jobs. Each job uploads its test results.
 
 The local `Playwright.runsettings` file defaults to headless Chromium. Browser
 selection can be overridden with `Playwright.BrowserName=chromium`, `firefox`,
@@ -190,11 +192,12 @@ To add a new test:
 1. Create a new folder under `UI_Tests/TC00xx/`.
 2. Add a `_TestObject.cs` file for JSON data deserialization.
 3. Add a `_Verify_<feature>.cs` file for test logic.
-4. Use existing page objects from `Pages/`.
-5. Update `Data/HomePage.json` with new test values.
+4. Inherit from `TracedPageTest` and load JSON with `TestDataLoader.Load<T>("HomePage.json")`.
+5. Use existing page objects from `Pages/` and update `Data/HomePage.json` with new test values.
 6. Keep read-only tests outside the `Stateful account tests` collection so they can run in parallel.
 7. Add account-mutating tests to `Stateful account tests` and reset backend state before each workflow.
-8. Follow naming conventions: `TC00xx_Verify_<Feature>.cs`.
+8. Add `[Trait("Category", "Smoke")]` only to tests that should run in the push-to-main smoke suite.
+9. Follow naming conventions: `TC00xx_Verify_<Feature>.cs`.
 
 ## Notes
 
@@ -203,4 +206,6 @@ To add a new test:
 - `Pages/HomePage.cs` and `Pages/CartPage.cs` contain the main reusable UI actions.
 - `Pages/ManagerPage.cs` coordinates workflows and resets the cart before stateful flows.
 - `Utilities/StatefulTestsCollection.cs` serializes tests that share account-backed state.
+- `Utilities/TracedPageTest.cs` manages trace startup and saving for each inheriting test.
+- `Utilities/TestDataLoader.cs` loads and deserializes JSON test data from `Data/`.
 - Trace artifacts are stored in `playwright-traces/` and can be opened with Playwright Inspector.
