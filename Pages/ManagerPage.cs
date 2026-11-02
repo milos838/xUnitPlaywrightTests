@@ -23,10 +23,31 @@ namespace PlaywrightTests.Pages
             await _homePage.AssertDashboardHeaderVisibleAsync();
         }
 
-        public async Task VerifyHomePageURLAsync(string url, string expectedURL)
+
+        private async Task NavigateAndLoginAsync(string url)
         {
             await _homePage.NavigateAsync(url);
             await _homePage.SubmitLoginAsync();
+        }
+
+        private async Task PrepareCartWithProductAsync(string url, string productName)
+        {
+            await PrepareCartWorkflowAsync(url);
+            await _homePage.AddToCartAsync(productName);
+            await _homePage.GoToCartAsync();
+        }
+
+        private async Task PrepareCartWorkflowAsync(string url)
+        {
+            await NavigateAndLoginAsync(url);
+            await _homePage.GoToCartAsync();
+            await _cartPage.ClearCartAsync();
+            await _homePage.NavigateToDashboardAsync(url);
+        }
+
+        public async Task VerifyHomePageURLAsync(string url, string expectedURL)
+        {
+            await NavigateAndLoginAsync(url);
             await _homePage.AssertURLAsync(expectedURL);
         }
 
@@ -54,15 +75,13 @@ namespace PlaywrightTests.Pages
 
         public async Task VerifyHeaderLinksAsync(string url)
         {
-            await _homePage.NavigateAsync(url);
-            await _homePage.SubmitLoginAsync();
+            await NavigateAndLoginAsync(url);
             await _homePage.AssertHeaderLinksVisibleAsync();
         }
 
         public async Task VerifySearchFieldAsync(string url, string searchTerm)
         {
-            await _homePage.NavigateAsync(url);
-            await _homePage.SubmitLoginAsync();
+            await NavigateAndLoginAsync(url);
             await _homePage.AssertSearchBoxVisibleAsync();
             await _homePage.SearchProductAsync(searchTerm);
             await _homePage.AssertSearchedProductVisibleAsync();
@@ -70,8 +89,7 @@ namespace PlaywrightTests.Pages
 
         public async Task VerifyPriceFilterAsync(string url, string minPrice, string maxPrice)
         {
-            await _homePage.NavigateAsync(url);
-            await _homePage.SubmitLoginAsync();
+            await NavigateAndLoginAsync(url);
             await _homePage.AssertPriceFilterFieldsVisibleAsync();
             await _homePage.SetPriceFilterAsync(minPrice, maxPrice);
             await _homePage.AssertPriceSearchedProductVisibleAsync();
@@ -79,8 +97,7 @@ namespace PlaywrightTests.Pages
 
         public async Task VerifyCategoryFiltersAsync(string url, string category1, string category2, string category3)
         {
-            await _homePage.NavigateAsync(url);
-            await _homePage.SubmitLoginAsync();
+            await NavigateAndLoginAsync(url);
             await _homePage.AssertCategoryCheckBoxesVisibleAsync();
             await _homePage.CheckFashionBoxAsync();
             await _homePage.CheckElectronicsBoxAsync();
@@ -92,8 +109,7 @@ namespace PlaywrightTests.Pages
 
         public async Task VerifySubCategoryFiltersAsync(string url)
         {
-            await _homePage.NavigateAsync(url);
-            await _homePage.SubmitLoginAsync();
+            await NavigateAndLoginAsync(url);
             await _homePage.AssertSubCategoryCheckBoxesVisibleAsync();
             await _homePage.CheckTShirtsBoxAsync();
             await _homePage.AssertSubCategoryTShirtsCheckBoxCheckedAsync();
@@ -109,8 +125,7 @@ namespace PlaywrightTests.Pages
 
         public async Task VerifySearchForCheckboxesAsync(string url)
         {
-            await _homePage.NavigateAsync(url);
-            await _homePage.SubmitLoginAsync();
+            await NavigateAndLoginAsync(url);
             await _homePage.AssertSearchForMenBoxVisibleAsync();
             await _homePage.AssertSearchForWomenBoxVisibleAsync();
             await _homePage.CheckSearchForMenBoxAsync();
@@ -121,18 +136,14 @@ namespace PlaywrightTests.Pages
 
         public async Task AddProductToCartAndVerifyAsync(string url, string productName)
         {
-            await PrepareCartWorkflowAsync(url);
-            await _homePage.AddToCartAsync(productName);
-            await _homePage.GoToCartAsync();
+            await PrepareCartWithProductAsync(url, productName);
             await _cartPage.AssertProductInCartAsync(productName);
             await _cartPage.AssertProductAddedToCartAsync(productName);
         }
 
         public async Task DeleteProductFromCartAndVerifyAsync(string url, string productName)
         {
-            await PrepareCartWorkflowAsync(url);
-            await _homePage.AddToCartAsync(productName);
-            await _homePage.GoToCartAsync();
+            await PrepareCartWithProductAsync(url, productName);
             await _cartPage.AssertBuyButtonVisibleAsync();
             await _cartPage.DeleteProductFromCartAsync(productName);
             await _cartPage.AssertNoCartItemsMessageVisibleAsync();
@@ -140,9 +151,7 @@ namespace PlaywrightTests.Pages
 
         public async Task BuyNowAndVerifyAsync(string url, string productName)
         {
-            await PrepareCartWorkflowAsync(url);
-            await _homePage.AddToCartAsync(productName);
-            await _homePage.GoToCartAsync();
+            await PrepareCartWithProductAsync(url, productName);
             await _cartPage.AssertBuyButtonVisibleAsync();
             await _cartPage.ClickBuyNowAsync();
             await _cartPage.AssertPlaceOrderButtonVisibleAsync();
@@ -150,9 +159,7 @@ namespace PlaywrightTests.Pages
 
         public async Task CheckoutAndVerifyAsync(string url, string productName)
         {
-            await PrepareCartWorkflowAsync(url);
-            await _homePage.AddToCartAsync(productName);
-            await _homePage.GoToCartAsync();
+            await PrepareCartWithProductAsync(url, productName);
             await _cartPage.AssertCheckoutButtonVisibleAsync();
             await _cartPage.ClickCheckoutAsync();
             await _cartPage.AssertPlaceOrderButtonVisibleAsync();
@@ -160,9 +167,7 @@ namespace PlaywrightTests.Pages
 
         public async Task ContinueShoppingAndVerifyAsync(string url, string productName)
         {
-            await PrepareCartWorkflowAsync(url);
-            await _homePage.AddToCartAsync(productName);
-            await _homePage.GoToCartAsync();
+            await PrepareCartWithProductAsync(url, productName);
             await _cartPage.AssertContinueShoppingButtonVisibleAsync();
             await _cartPage.ClickContinueShoppingAsync();
             await _homePage.AssertDashboardHeaderVisibleAsync();
@@ -170,22 +175,12 @@ namespace PlaywrightTests.Pages
 
         public async Task PlaceOrderAndVerifyAsync(string url, string productName, string country)
         {
-            await PrepareCartWorkflowAsync(url);
-            await _homePage.AddToCartAsync(productName);
-            await _homePage.GoToCartAsync();
+            await PrepareCartWithProductAsync(url, productName);
             await _cartPage.ClickCheckoutAsync();
             await _cartPage.FillSequentlyCountryAsync(country);
             await _cartPage.ClickPlaceOrderAsync();
             await _cartPage.OrderConfirmationMessageVisibleAsync();
         }
 
-        private async Task PrepareCartWorkflowAsync(string url)
-        {
-            await _homePage.NavigateAsync(url);
-            await _homePage.SubmitLoginAsync();
-            await _homePage.GoToCartAsync();
-            await _cartPage.ClearCartAsync();
-            await _homePage.NavigateToDashboardAsync(url);
-        }
     }
 }
