@@ -27,13 +27,7 @@ namespace PlaywrightTests.Pages
         public static async Task StartTraceAsync(IBrowserContext context, string className)
         {
             var testName = GetTestMethodName();
-            await context.Tracing.StartAsync(new()
-            {
-                Title = $"{className}.{testName}",
-                Screenshots = true,
-                Snapshots = true,
-                Sources = true
-            });
+            await StartTraceAsync(context, className, testName);
         }
 
         /// <summary>
@@ -56,12 +50,7 @@ namespace PlaywrightTests.Pages
         public static async Task StopTraceAsync(IBrowserContext context, string className)
         {
             var testName = GetTestMethodName();
-            var traceDirectory = Path.Combine(Environment.CurrentDirectory, "playwright-traces");
-            Directory.CreateDirectory(traceDirectory);
-            await context.Tracing.StopAsync(new()
-            {
-                Path = Path.Combine(traceDirectory, $"{className}.{testName}.zip")
-            });
+            await StopTraceAsync(context, className, testName);
         }
 
         /// <summary>
