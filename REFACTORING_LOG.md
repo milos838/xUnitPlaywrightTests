@@ -111,7 +111,7 @@ Existing hardcoded search/price-result expectations in [HomePage.cs](./Pages/Hom
 ## Phase 2A: Test Setup & Tracing Refactoring
 
 - **Phase completed:** 2026-11-03 (manual verification).
-- **Documentation created:** 2026-11-03.
+- **Documentation updated:** 2026-11-03.
 - **Status:** Implemented and manually validated; refactoring changes remain uncommitted.
 - **Scope:** Two overload bodies in [Components.cs](./Pages/Components.cs). No test, configuration, or lifecycle-base changes.
 
@@ -177,6 +177,52 @@ Tracing options and trace saving now each have one implementation, with the exis
 
 Uncommitted at documentation time. No Phase 2A commit hash is available; add a verified reference after an explicitly authorized commit.
 
+## Phase 2B: Safe Disposal & Exception Handling
+
+- **Phase completed:** 2026-11-10 (developer verification).
+- **Documentation updated:** 2026-11-10.
+- **Status:** Implemented and validated.
+- **Scope:** `DisposeAsync()` in [TracedPageTest.cs](./Utilities/TracedPageTest.cs).
+
+### Problem
+
+The original `TracedPageTest.DisposeAsync()` implementation awaited `TraceViewerComponent.StopTraceAsync()` before `PageTest.DisposeAsync()`. If trace stopping threw, base disposal was skipped.
+
+### Decision
+
+Use a minimal `try/finally` implementation that preserves trace-stop-before-base-disposal ordering and guarantees that base disposal is attempted when trace stopping fails. Aggregate exception handling was rejected because the current framework has no requirement to preserve two simultaneous cleanup failures, and it would add reporting complexity. Additional abstractions were also rejected because the change is local, the lifecycle order is explicit, and no reusable disposal seam is currently needed.
+
+### Implementation
+
+Only [TracedPageTest.cs](./Utilities/TracedPageTest.cs) was modified for the implementation. No additional production abstractions, packages, or test classes were introduced. `InitializeAsync()`, `Components.cs`, existing tests, and workflows were unchanged.
+
+### Verification
+
+The following results were verified locally by the developer:
+
+| Check | Result |
+| --- | --- |
+| Local Debug build | PASS |
+| Existing E2E suite | 15/15 PASS |
+| Playwright trace ZIP verification | PASS |
+| `git diff --check` | PASS |
+
+### Failure-path verification
+
+No dedicated failure-injection test was added. The cleanup-attempt guarantee was verified through code review and standard C# `try/finally` semantics, not through an executed failure-path test. A deterministic test would require a test seam or indirect Playwright/filesystem failure injection, which was unnecessary for this small, localized change.
+
+### Known limitations
+
+- Cleanup is attempted but is not guaranteed to succeed.
+- If both trace stopping and base disposal fail, the base disposal exception may mask the trace exception.
+- Partial initialization may leave tracing unavailable.
+
+### Lessons Learned
+
+- Resource cleanup should not depend on successful diagnostic artifact generation.
+- Prefer the smallest robust solution.
+- Distinguish normal-path regression verification from failure-path verification.
+
 ## Template for future phases
 
 Copy this template above this section for each new phase. Separate source-verified facts, recorded execution results, assumptions, and unmeasured expectations.
@@ -185,7 +231,7 @@ Copy this template above this section for each new phase. Separate source-verifi
 ## Phase N: <Title>
 
 - **Phase completed:** YYYY-MM-DD / Pending
-- **Documentation created:** YYYY-MM-DD
+- **Documentation updated:** YYYY-MM-DD
 - **Status:** Proposed / Approved / Implemented / Validated / Committed
 - **Scope:** <Files, classes, and boundaries>
 

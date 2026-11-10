@@ -13,7 +13,13 @@ public abstract class TracedPageTest : PageTest
 
     public override async Task DisposeAsync()
     {
-        await TraceViewerComponent.StopTraceAsync(Context, GetType().Name);
-        await base.DisposeAsync().ConfigureAwait(false);
+        try
+        {
+            await TraceViewerComponent.StopTraceAsync(Context, GetType().Name);
+        }
+        finally
+        {
+            await base.DisposeAsync().ConfigureAwait(false);
+        }
     }
 }
