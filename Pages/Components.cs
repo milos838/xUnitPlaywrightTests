@@ -1,6 +1,5 @@
 using Microsoft.Playwright;
 using System.Reflection;
-using System.Diagnostics;
 using Xunit.Sdk;
 
 namespace PlaywrightTests.Pages
@@ -8,26 +7,11 @@ namespace PlaywrightTests.Pages
     public class TraceViewerComponent
     {
         /// <summary>
-        /// Gets the test method name from the call stack.
-        /// </summary>
-        private static string GetTestMethodName()
-        {
-            var stackTrace = new StackTrace(2);
-            if (stackTrace.FrameCount > 0)
-            {
-                var frame = stackTrace.GetFrame(0);
-                return frame?.GetMethod()?.Name ?? "UnknownTest";
-            }
-            return "UnknownTest";
-        }
-
-        /// <summary>
         /// Starts tracing for Playwright with screenshots, snapshots, and sources.
         /// </summary>
         public static async Task StartTraceAsync(IBrowserContext context, string className)
         {
-            var testName = GetTestMethodName();
-            await StartTraceAsync(context, className, testName);
+            await StartTraceAsync(context, className, className);
         }
 
         /// <summary>
@@ -35,9 +19,10 @@ namespace PlaywrightTests.Pages
         /// </summary>
         public static async Task StartTraceAsync(IBrowserContext context, string className, string testName)
         {
+            var traceIdentifier = className == testName ? className : $"{className}.{testName}";
             await context.Tracing.StartAsync(new()
             {
-                Title = $"{className}.{testName}",
+                Title = traceIdentifier,
                 Screenshots = true,
                 Snapshots = true,
                 Sources = true
@@ -49,8 +34,7 @@ namespace PlaywrightTests.Pages
         /// </summary>
         public static async Task StopTraceAsync(IBrowserContext context, string className)
         {
-            var testName = GetTestMethodName();
-            await StopTraceAsync(context, className, testName);
+            await StopTraceAsync(context, className, className);
         }
 
         /// <summary>
@@ -60,9 +44,10 @@ namespace PlaywrightTests.Pages
         {
             var traceDirectory = Path.Combine(Environment.CurrentDirectory, "playwright-traces");
             Directory.CreateDirectory(traceDirectory);
+            var traceIdentifier = className == testName ? className : $"{className}.{testName}";
             await context.Tracing.StopAsync(new()
             {
-                Path = Path.Combine(traceDirectory, $"{className}.{testName}.zip")
+                Path = Path.Combine(traceDirectory, $"{traceIdentifier}.zip")
             });
         }
     }
