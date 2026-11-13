@@ -223,6 +223,52 @@ No dedicated failure-injection test was added. The cleanup-attempt guarantee was
 - Prefer the smallest robust solution.
 - Distinguish normal-path regression verification from failure-path verification.
 
+## Phase 2C: Trace Naming Reliability
+
+- **Phase completed:** 2026-11-13 (developer verification).
+- **Documentation updated:** 2026-11-13.
+- **Status:** Implemented and validated.
+- **Scope:** [Components.cs](./Pages/Components.cs).
+
+### Problem
+
+`GetTestMethodName()` relied on `StackTrace(2)`, producing unreliable test identifiers such as `ClassName.Start.zip`.
+
+### Decision
+
+Use the test class name as the stable trace identifier because the current framework has 15 test classes with one `[Fact]` test each.
+
+### Implementation
+
+- Removed stack-based test-name inference.
+- Updated the two-argument `StartTraceAsync` and `StopTraceAsync` overloads to pass the class name explicitly.
+- Preserved the three-argument overloads and their ability to generate `ClassName.MethodName` identifiers.
+- Avoided duplicated class names in trace titles and ZIP filenames.
+- Preserved the Phase 2B `try/finally` disposal behavior.
+- Only [Components.cs](./Pages/Components.cs) was modified for Phase 2C.
+
+### Verification
+
+The following results were verified locally by the developer:
+
+- Existing E2E suite: 15/15 PASS.
+- New trace ZIP filenames match the expected class-based naming format.
+- New trace ZIP files have nonzero sizes.
+- Previous `ClassName.Start.zip` files remain from older runs.
+
+Trace ZIP contents were not revalidated as part of this phase.
+
+### Known limitations
+
+- Multiple test methods within one class would share the same trace identifier.
+- Parameterized cases are not uniquely identified.
+- Repeated runs may overwrite existing ZIP files.
+- Classes with identical names in different namespaces may collide.
+
+### Lessons Learned
+
+Prefer explicit, stable identifiers over runtime stack inspection for diagnostic artifacts.
+
 ## Template for future phases
 
 Copy this template above this section for each new phase. Separate source-verified facts, recorded execution results, assumptions, and unmeasured expectations.
