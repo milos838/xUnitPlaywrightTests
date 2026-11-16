@@ -269,6 +269,70 @@ Trace ZIP contents were not revalidated as part of this phase.
 
 Prefer explicit, stable identifiers over runtime stack inspection for diagnostic artifacts.
 
+## Phase 3: CI Diagnostics & Cart Verification Reliability
+
+- **Phase completed:** 2026-11-16 (developer verification).
+- **Documentation updated:** 2026-11-16.
+- **Status:** Implemented and validated.
+- **Scope:** GitHub Actions trace artifact handling and the TC0015 cart-to-checkout workflow.
+
+### Phase 3A: CI Failure Investigation
+
+The pull-request workflow executed the full 15-test suite successfully. The push-to-main workflow executed only the three tests categorized as Smoke. In a previous Smoke run, `TC0015_Verify_that_order_is_placed` failed with `System.TimeoutException` after 30000 ms while waiting for the Checkout locator.
+
+The investigation identified that TC0015 did not explicitly verify that the expected cart product was present before attempting Checkout. The exact original CI root cause was not conclusively established; possible application, timing, browser, account-state, and environment factors remained hypotheses. No code changes were made during the investigation.
+
+### Phase 3B: Playwright Trace Artifacts
+
+Updated [playwright-tests.yml](./.github/workflows/playwright-tests.yml) and [weekly-cross-browser-tests.yml](./.github/workflows/weekly-cross-browser-tests.yml) to preserve Playwright trace ZIP files from CI runs.
+
+- Added `upload-artifact@v4` steps with `if: always()`.
+- Used the recursive pattern `**/playwright-traces/*.zip`.
+- Preserved the existing TRX artifact uploads.
+- Added unique trace artifact names for the weekly cross-browser matrix jobs.
+- Confirmed that GitHub Actions uploaded 15 trace ZIP files successfully.
+- Confirmed that trace files were generated under `bin/Release/net10.0/playwright-traces`.
+- Successfully inspected a trace ZIP file.
+
+### Phase 3C: Cart Verification Reliability
+
+Updated the cart-to-checkout path to verify readiness before interacting with Checkout.
+
+- Updated `CartPage.AssertProductAddedToCartAsync`.
+- Replaced immediate `AllAsync()` enumeration with a `.cart`-scoped Playwright locator filtered by the expected product and a `ToBeVisibleAsync()` assertion.
+- Updated `ManagerPage.PlaceOrderAndVerifyAsync` to verify the expected product before clicking Checkout.
+- Reused the existing Page Object Model methods.
+- Did not change the Checkout locator.
+- Did not increase timeouts or introduce retries or fixed delays.
+
+### Verification Results
+
+The following results were verified locally or in CI by the developer:
+
+| Check | Result |
+| --- | --- |
+| TC0015 standalone local test | PASS |
+| Full local regression | 15/15 PASS |
+| Pull Request #21 | 15/15 PASS in 2m 9s |
+| Push-to-main Smoke workflow | 3/3 PASS in 21s |
+| Validated main commit | `64ecb555` |
+
+### Important Limitations
+
+- The exact root cause of the original CI failure remains unconfirmed.
+- One successful Smoke execution does not prove permanent elimination of intermittent failures.
+- CI trace artifacts are now available for future debugging.
+- Cross-browser reliability has not been revalidated after the Phase 3 changes.
+- No claim is made that all intermittent failures have been permanently resolved.
+
+### Lessons Learned
+
+- Use concrete CI exceptions and failure locations rather than generic failure assumptions.
+- Separate confirmed findings from hypotheses that require additional evidence.
+- Prefer condition-based Playwright assertions over immediate DOM enumeration for asynchronous UI state.
+- Improve diagnostics before introducing retries or longer timeouts.
+- Keep reliability changes minimal and independently reviewable.
+
 ## Template for future phases
 
 Copy this template above this section for each new phase. Separate source-verified facts, recorded execution results, assumptions, and unmeasured expectations.
