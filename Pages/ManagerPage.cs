@@ -176,6 +176,7 @@ namespace PlaywrightTests.Pages
         public async Task PlaceOrderAndVerifyAsync(string url, string productName, string country)
         {
             await PrepareCartWithProductAsync(url, productName);
+            await _cartPage.AssertProductAddedToCartAsync(productName);
             await _cartPage.ClickCheckoutAsync();
             await _cartPage.FillSequentlyCountryAsync(country);
             await _cartPage.ClickPlaceOrderAsync();

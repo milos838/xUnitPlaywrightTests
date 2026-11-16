@@ -93,21 +93,10 @@ namespace PlaywrightTests.Pages
         }
         public async Task AssertProductAddedToCartAsync(string product)
         {
-            var cartItems = await _page.Locator(".cart").AllAsync();
-            bool productFoundInCart = false;
-            foreach (var item in cartItems)
-            {
-                var text = await item.TextContentAsync();
-                if (text != null && text.Contains(product, StringComparison.OrdinalIgnoreCase))
-                {
-                    productFoundInCart = true;
-                    break;
-                }
-            }
-            if (!productFoundInCart)
-            {
-                throw new Exception($"Product '{product}' was not found in the cart.");
-            }   
+            var productInCart = _page.Locator(".cart")
+                .Filter(new() { HasText = product })
+                .First;
+            await Expect(productInCart).ToBeVisibleAsync();
         }
         public async Task AssertDeleteButtonVisibleAsync()
         {
