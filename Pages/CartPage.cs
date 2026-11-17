@@ -38,13 +38,21 @@ namespace PlaywrightTests.Pages
         public async Task ClearCartAsync()
         {
             var deleteButtons = _page.Locator(".btn-danger");
-            var itemCount = await deleteButtons.CountAsync();
+            var cartState = noCartitemsMessage.Or(deleteButtons).First;
 
-            while (itemCount > 0)
+            while (true)
             {
+                await Expect(cartState).ToBeVisibleAsync();
+
+                if (await noCartitemsMessage.IsVisibleAsync())
+                {
+                    break;
+                }
+
+                var deleteButtonCount = await deleteButtons.CountAsync();
+                await Expect(deleteButtons.First).ToBeVisibleAsync();
                 await deleteButtons.First.ClickAsync();
-                itemCount--;
-                await Expect(deleteButtons).ToHaveCountAsync(itemCount);
+                await Expect(deleteButtons).ToHaveCountAsync(deleteButtonCount - 1);
             }
 
             await AssertNoCartItemsMessageVisibleAsync();
