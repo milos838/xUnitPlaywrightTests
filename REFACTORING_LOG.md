@@ -333,6 +333,92 @@ The following results were verified locally or in CI by the developer:
 - Improve diagnostics before introducing retries or longer timeouts.
 - Keep reliability changes minimal and independently reviewable.
 
+### Phase 3D: Cross-Browser CI Stability & Reliable Cart Cleanup
+
+#### Phase 3D.1 — Cross-Browser CI Investigation
+
+The manually triggered Weekly Cross-Browser workflow initially failed in all three browser jobs: Chromium, Firefox, and WebKit. Chromium completed 13/15 tests, with failures in TC0013 (Checkout) and TC0014 (Continue Shopping).
+
+- TC0013 failed because the Checkout button was not visible; the inspected trace showed an empty cart.
+- TC0014 failed because the expected empty-cart message was not visible; the inspected trace showed `ZARA COAT 3` still present.
+- Code inspection identified a shared remote test account used by all three browser matrix jobs.
+- The existing `StatefulTestsCollection` prevents parallel execution within a test process but cannot coordinate separate GitHub Actions jobs.
+- Concurrent modifications to the shared cart were identified as a leading hypothesis, not a conclusively proven root cause.
+
+#### Implemented CI Change
+
+File: [weekly-cross-browser-tests.yml](./.github/workflows/weekly-cross-browser-tests.yml)
+
+Added:
+
+```yaml
+max-parallel: 1
+```
+
+Preserved:
+
+- `fail-fast: false`
+- Chromium, Firefox, and WebKit matrix entries
+- Existing test commands and artifact uploads
+
+This serializes browser matrix jobs within one workflow run.
+
+Validation:
+
+- The manually triggered Weekly workflow passed all three browser jobs.
+- Chromium: 15/15 PASS
+- Firefox: 15/15 PASS
+- WebKit: 15/15 PASS
+- Total: 45/45 PASS
+
+#### Phase 3D.2 — Reliable Cart Cleanup
+
+File: [CartPage.cs](./Pages/CartPage.cs)
+
+`ClearCartAsync()` originally used an immediate `CountAsync()` result before confirming that the cart had reached a recognizable state.
+
+Implementation:
+
+- Introduced a readiness locator using `noCartitemsMessage.Or(deleteButtons).First`.
+- Waits until either the empty-cart message or a delete button becomes visible.
+- Handles an initially empty cart.
+- Deletes products one at a time.
+- Uses a per-deletion count assertion to verify progress.
+- Retains the final empty-cart assertion.
+- No fixed delays, arbitrary retries, or increased timeouts were introduced.
+
+Validation:
+
+- TC0014 targeted local test: 1/1 PASS.
+- Complete local regression: 15/15 PASS.
+- GitHub Actions PR regression: PASS.
+- Weekly Cross-Browser regression after the change:
+  - Chromium: 15/15 PASS
+  - Firefox: 15/15 PASS
+  - WebKit: 15/15 PASS
+  - Total: 45/45 PASS
+
+#### Remaining Limitations and Risks
+
+- The original cross-job interference hypothesis is strongly supported by the controlled serialization experiment but not conclusively proven.
+- `max-parallel: 1` does not prevent interference from separate workflow runs or external sessions using the same account.
+- Browser-specific test accounts would provide stronger isolation and could enable safe parallel execution.
+- `AddToCartAsync()` does not explicitly verify cart-update completion before navigation.
+- The cleanup logic still assumes that the empty-cart message and delete-button locators accurately represent the application's state.
+- Successful CI runs do not prove that intermittent failures are permanently eliminated.
+
+#### Phase 3 Conclusion
+
+Phase 3 is implemented and validated, covering:
+
+- CI failure investigation
+- Playwright trace artifact collection
+- Cart verification improvements
+- Cross-browser job serialization
+- Reliable cart cleanup
+
+Phase 4 — Framework Architecture & Code Quality Review is the next planned phase.
+
 ## Template for future phases
 
 Copy this template above this section for each new phase. Separate source-verified facts, recorded execution results, assumptions, and unmeasured expectations.
