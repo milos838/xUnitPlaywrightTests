@@ -10,6 +10,30 @@ regex = '''(?i)\b(?:[a-z0-9_.:-]+[_.:-])?(?:passw(?:or)?d|[a-z0-9_]+(?-i:Passwor
 secretGroup = 1
 keywords = ["password", "passwd"]
 
+# The history rewrite left this redaction marker in the listed file versions.
+# Require the marker, path, and commit together so other findings still report.
+[[rules.allowlists]]
+condition = "AND"
+paths = ['''\ACREDENTIALS_SETUP\.md\z''']
+commits = [
+    "67c8d09c648603ad90906c7639a186e433e825cb",
+    "3983c4446de0076f453e2406fd2e4c94356bd394",
+]
+regexTarget = "secret"
+regexes = ['''\A\x52EDACTED_HISTORICAL_PASSWORD\z''']
+
+[[rules.allowlists]]
+condition = "AND"
+paths = ['''\AData/HomePage\.json\z''']
+commits = [
+    "4f6c0328be4e23709ee034bf1b7082dcfcc082c1",
+    "20a90a3d7b25939d559c602c56c07a2c2766f7cf",
+    "969417fbcc4926213dda66ada83ecacb4bd0c890",
+    "956cd37dd0c07e246d164fd8fb8f9f5e0ede2082",
+]
+regexTarget = "secret"
+regexes = ['''\A\x52EDACTED_HISTORICAL_PASSWORD\z''']
+
 # Catch plain password scalars in YAML and YAML-style Markdown examples.
 [[rules]]
 id = "literal-password-plain"
