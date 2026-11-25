@@ -1,108 +1,111 @@
-# Setting Up Credentials for Test Execution
+# Credential setup and security
 
-This guide explains how to securely store test credentials so they're never visible in source control.
+## Resolution policy
 
-## Option 1: User Secrets (Recommended for Local Development)
+Credentials are resolved only when authentication calls `CredentialsHelper`.
+`GetUsername()` and `GetPassword()` share one thread-safe, lazily validated pair.
 
-User secrets are stored locally on your machine outside the project directory. They're perfect for development.
+1. If either `TEST_USERNAME` or `TEST_PASSWORD` is defined, both must be nonblank.
+   This environment pair wins over User Secrets. Invalid pairs fail without fallback.
+2. If neither is defined, CI fails closed before reading User Secrets.
+3. Outside CI, both `Credentials:Username` and `Credentials:Password` must be
+   nonblank in this project's .NET User Secrets store.
 
-### Setup Steps:
+Values are never mixed across sources or trimmed. No other environment credential
+names are supported. Whitespace-only values are invalid. Both getters validate the
+entire pair; unauthenticated tests that do not call them need no credentials.
+The pair, or its resolution failure, is cached for the process. Restart the test
+process after changing credentials or CI markers.
 
-1. **Open PowerShell** in your project directory
+CI detection recognizes `GITHUB_ACTIONS=true` (case-insensitive), nonblank
+`JENKINS_URL` or `JENKINS_HOME`, or a `BUILD_TAG` starting with `jenkins-`
+(case-insensitive). Preserve these markers when launching tests through wrappers
+or containers. A local shell retaining these markers also disables local fallback.
 
-2. **Set your credentials:**
-   ```powershell
-   dotnet user-secrets set "Credentials:Username" "redacted-historical-user"
-   dotnet user-secrets set "Credentials:Password" "REDACTED_HISTORICAL_PASSWORD"
-   ```
+## Local development setup
 
-3. **Verify they're set:**
-   ```powershell
-   dotnet user-secrets list
-   ```
+.NET User Secrets are local development storage outside the repository, not an
+encrypted secret vault. Protect the OS account and filesystem permissions.
+The project already declares its `UserSecretsId`; do not create a repository copy
+of the secrets file. Logical keys use placeholder values only in this example:
 
-That's it! Your tests will now automatically load these credentials.
+```json
+{
+  "Credentials:Username": "<TEST_ACCOUNT_USERNAME>",
+  "Credentials:Password": "<TEST_ACCOUNT_PASSWORD>"
+}
+```
 
-### Location of User Secrets:
-- **Windows:** `C:\Users\[YourUsername]\AppData\Roaming\Microsoft\UserSecrets\PlaywrightTests-SecretId\secrets.json`
-- **macOS:** `~/.microsoft/usersecrets/PlaywrightTests-SecretId/secrets.json`
-- **Linux:** `~/.microsoft/usersecrets/PlaywrightTests-SecretId/secrets.json`
+For actual setup, use PowerShell 7 from the repository directory in a trusted
+terminal without transcription, debug tracing, or screen recording. This script
+prompts without echoing either value and pipes JSON to the CLI through standard
+input. Actual values do not enter shell history or command-line arguments. The
+CLI and script still hold plaintext in memory temporarily; cleanup cannot promise
+memory erasure. Do not print variables, configuration, or stored secrets.
 
----
-
-## Option 2: Environment Variables (For CI/CD Pipelines)
-
-Use environment variables when running tests in GitHub Actions, Azure DevOps, or other CI/CD systems.
-
-### Setup:
+ASCII-only JSON transport avoids sending non-ASCII text across the native CLI
+boundary. JSON Unicode escape sequences preserve the original Unicode credential
+values when the CLI parses the payload.
 
 ```powershell
-# Set environment variables (in your CI/CD pipeline)
-$env:TEST_USERNAME = "redacted-historical-user"
-$env:TEST_PASSWORD = "REDACTED_HISTORICAL_PASSWORD"
-
-# Or in bash/GitHub Actions
-export TEST_USERNAME="redacted-historical-user"
-export TEST_PASSWORD="REDACTED_HISTORICAL_PASSWORD"
+$setupUsername = Read-Host 'Test account username' -AsSecureString
+$setupPassword = Read-Host 'Test account password' -AsSecureString
+$setupPair = @{}
+try {
+    $setupPair['Credentials:Username'] = [System.Net.NetworkCredential]::new('', $setupUsername).Password
+    $setupPair['Credentials:Password'] = [System.Net.NetworkCredential]::new('', $setupPassword).Password
+    if ([string]::IsNullOrWhiteSpace($setupPair['Credentials:Username']) -or
+        [string]::IsNullOrWhiteSpace($setupPair['Credentials:Password'])) {
+        throw 'Both credential values must be nonblank.'
+    }
+    $setupPair | ConvertTo-Json -Compress -EscapeHandling EscapeNonAscii | dotnet user-secrets set --project PlaywrightTests.csproj
+    if ($LASTEXITCODE -ne 0) { throw 'User Secrets setup failed.' }
+}
+finally {
+    $setupPair.Clear()
+    $setupUsername.Dispose()
+    $setupPassword.Dispose()
+    Remove-Variable setupPair, setupUsername, setupPassword
+}
 ```
 
-### In GitHub Actions Example:
-```yaml
-env:
-  TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
-  TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-```
+This updates both credential keys without requiring a readout of stored values.
+Remove stale `TEST_USERNAME` and `TEST_PASSWORD` definitions before using local
+fallback. If using environment credentials instead, populate both through an
+approved nonprinting secret injection mechanism; never type real passwords into
+shell assignments or CLI arguments. Validate resolution with dummy values first.
 
----
+## GitHub Actions and Jenkins
 
-## How It Works
+Create GitHub Actions repository secrets named `TEST_USERNAME` and `TEST_PASSWORD`
+using GitHub's secret-entry interface. Both workflows bind them only to test
+execution steps. Missing or blank CI credentials fail authentication explicitly;
+User Secrets cannot rescue a misconfigured CI run. Fork PRs normally cannot access
+repository secrets; never expose secrets to untrusted PR code to bypass this.
 
-The `CredentialsHelper` class tries to load credentials in this order:
-1. User secrets (if running locally)
-2. Environment variables (if set)
-3. Throws an error if neither is found
+For Jenkins, store a Username with password credential with a placeholder ID such
+as `<JENKINS_TEST_CREDENTIAL_ID>`. Bind it using Credentials Binding only around
+test execution, with username variable `TEST_USERNAME` and password variable
+`TEST_PASSWORD`. Preserve the Jenkins CI markers described above. Do not use
+Groovy string interpolation, echo, environment dumps, or command arguments to pass
+credential values. Keep build/install/report steps outside the binding scope.
+Jenkins configuration is managed separately and is not included in this repository.
 
-### Using in Your Tests:
-```csharp
-using PlaywrightTests.Utilities;
+## Traces, migration, and historical exposure
 
-// In your test method:
-string username = CredentialsHelper.GetUsername();
-string password = CredentialsHelper.GetPassword();
-```
+Raw tracing is disabled by default. Only `PLAYWRIGHT_TRACE_ENABLED=true`
+(case-insensitive, without padding) opts in. Both GitHub workflows explicitly set
+it to `'false'` and do not upload raw traces. Jenkins should also explicitly set
+it to false. Existing trace naming and local opt-in remain available.
 
----
+Raw traces may contain credentials, fill parameters, request bodies, authentication
+tokens, Authorization headers, cookies, screenshots, and authenticated data. They
+are not sanitized or safe to share. Opt in only for an explicitly approved
+investigation with restricted storage and appropriate account precautions.
 
-## Important Notes
-
-✅ **DO:**
-- Store credentials in user secrets or environment variables
-- Use `CredentialsHelper` to retrieve credentials in tests
-- Update `.gitignore` to prevent accidental commits
-
-❌ **DON'T:**
-- Hardcode credentials in source files
-- Store credentials in JSON files in the repository
-- Commit `.env` files or secrets configuration
-
----
-
-## Troubleshooting
-
-### "Username not found" error
-**Solution:** Run the setup commands from Option 1 above.
-
-### Clearing secrets
-```powershell
-dotnet user-secrets clear
-```
-
-### Removing a specific secret
-```powershell
-dotnet user-secrets remove "Credentials:Username"
-```
-
-### Tests still not finding credentials
-1. Ensure you're running from the project directory containing `PlaywrightTests.csproj`
-2. Rebuild the project: `dotnet build`
-3. Verify secrets are set: `dotnet user-secrets list`
+Replacing current credential values does not remove Git history, old clones,
+previous logs, or diagnostic artifacts. The old account remains compromised;
+rotate its password and revoke sessions where supported, or contact the service
+operator. A new account does not secure the old one. Historical cleanup and
+artifact remediation require a separate approved operation. Do not use the new
+account until the containment changes have been reviewed and adopted.

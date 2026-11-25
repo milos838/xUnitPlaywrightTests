@@ -47,10 +47,20 @@ secrets.json
 
 # Environment files with secrets
 .env
-.env.local
+.env.*
+!.env.example
+!.env.template
+!.env.*.example
+!.env.*.template
 appsettings.local.json
+appsettings.*.local.json
+secrets.local.json
 
 # Playwright test artifacts
 test-results/
+[Tt]est[Rr]esults/
 blob-report/
 playwright-report/
+playwright-traces/
+.auth/
+auth-state.json

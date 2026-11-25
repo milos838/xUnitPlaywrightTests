@@ -19,9 +19,8 @@ jobs:
         browser: [chromium, firefox, webkit]
     env:
       CONFIGURATION: Release
+      PLAYWRIGHT_TRACE_ENABLED: 'false'
       BROWSER: ${{ matrix.browser }}
-      TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
-      TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +40,9 @@ jobs:
         run: pwsh bin/${{ env.CONFIGURATION }}/net10.0/playwright.ps1 install ${{ matrix.browser }}
 
       - name: Run all tests
+        env:
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         run: >-
           dotnet test --no-build --settings Playwright.runsettings
           --results-directory TestResults --verbosity normal
@@ -52,12 +54,4 @@ jobs:
         with:
           name: test-results-${{ matrix.browser }}
           path: TestResults
-          if-no-files-found: warn
-
-      - name: Upload Playwright traces
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-traces-${{ matrix.browser }}
-          path: '**/playwright-traces/*.zip'
           if-no-files-found: warn

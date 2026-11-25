@@ -3,61 +3,75 @@ using Microsoft.Extensions.Configuration;
 namespace PlaywrightTests.Utilities
 {
     /// <summary>
-    /// Helper class to retrieve credentials from user secrets or environment variables.
-    /// Secrets are stored securely and not committed to source control.
+    /// Resolves a complete credential pair from environment variables or local user secrets.
     /// </summary>
     public static class CredentialsHelper
     {
-        private static IConfiguration? _config;
+        private static readonly Lazy<(string Username, string Password)> Credentials = new(LoadCredentials);
 
         /// <summary>
-        /// Gets the configuration builder with user secrets and environment variables.
+        /// Resolves and validates both values together on first use.
         /// </summary>
-        private static IConfiguration GetConfiguration()
+        private static (string Username, string Password) LoadCredentials()
         {
-            if (_config != null)
-                return _config;
+            var username = Environment.GetEnvironmentVariable("TEST_USERNAME");
+            var password = Environment.GetEnvironmentVariable("TEST_PASSWORD");
 
-            var configBuilder = new ConfigurationBuilder()
+            if (username is not null || password is not null)
+            {
+                if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+                    throw new InvalidOperationException(
+                        "Environment credentials require both TEST_USERNAME and TEST_PASSWORD to be nonblank. " +
+                        "User Secrets fallback is disabled when either variable is defined.");
+
+                return (username, password);
+            }
+
+            if (IsCiEnvironment())
+                throw new InvalidOperationException(
+                    "CI authentication requires both TEST_USERNAME and TEST_PASSWORD. " +
+                    "Local User Secrets fallback is disabled in CI.");
+
+            var config = new ConfigurationBuilder()
                 .AddUserSecrets(typeof(CredentialsHelper).Assembly, optional: true)
-                .AddEnvironmentVariables("TEST_");
+                .Build();
+            using var configLifetime = config as IDisposable;
 
-            _config = configBuilder.Build();
-            return _config;
+            username = config["Credentials:Username"];
+            password = config["Credentials:Password"];
+
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+                throw new InvalidOperationException(
+                    "Local authentication requires nonblank Credentials:Username and Credentials:Password " +
+                    "in User Secrets, or a complete TEST_USERNAME and TEST_PASSWORD environment pair.");
+
+            return (username, password);
+        }
+
+        private static bool IsCiEnvironment()
+        {
+            return string.Equals(Environment.GetEnvironmentVariable("GITHUB_ACTIONS"),
+                       "true", StringComparison.OrdinalIgnoreCase)
+                || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("JENKINS_URL"))
+                || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("JENKINS_HOME"))
+                || Environment.GetEnvironmentVariable("BUILD_TAG")
+                    ?.StartsWith("jenkins-", StringComparison.OrdinalIgnoreCase) == true;
         }
 
         /// <summary>
-        /// Gets the username from user secrets or environment variable (TEST_USERNAME).
+        /// Gets the username from the validated credential pair.
         /// </summary>
         public static string GetUsername()
         {
-            var config = GetConfiguration();
-            var username = config["Credentials:Username"] 
-                ?? Environment.GetEnvironmentVariable("TEST_USERNAME");
-            
-            if (string.IsNullOrEmpty(username))
-                throw new InvalidOperationException(
-                    "Username not found. Set using: dotnet user-secrets set \"Credentials:Username\" \"<value>\" " +
-                    "or set environment variable TEST_USERNAME");
-            
-            return username;
+            return Credentials.Value.Username;
         }
 
         /// <summary>
-        /// Gets the password from user secrets or environment variable (TEST_PASSWORD).
+        /// Gets the password from the validated credential pair.
         /// </summary>
         public static string GetPassword()
         {
-            var config = GetConfiguration();
-            var password = config["Credentials:Password"] 
-                ?? Environment.GetEnvironmentVariable("TEST_PASSWORD");
-            
-            if (string.IsNullOrEmpty(password))
-                throw new InvalidOperationException(
-                    "Password not found. Set using: dotnet user-secrets set \"Credentials:Password\" \"<value>\" " +
-                    "or set environment variable TEST_PASSWORD");
-            
-            return password;
+            return Credentials.Value.Password;
         }
     }
 }

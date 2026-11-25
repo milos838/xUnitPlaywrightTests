@@ -17,8 +17,7 @@ jobs:
     runs-on: windows-latest
     env:
       CONFIGURATION: Release
-      TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
-      TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+      PLAYWRIGHT_TRACE_ENABLED: 'false'
     
     steps:
       - uses: actions/checkout@v4
@@ -40,6 +39,9 @@ jobs:
 
       - name: Run Smoke tests after merge to main
         if: github.event_name == 'push'
+        env:
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         run: >-
           dotnet test --no-build --settings Playwright.runsettings
           --filter "Category=Smoke"
@@ -48,6 +50,9 @@ jobs:
 
       - name: Run full suite for pull requests
         if: github.event_name == 'pull_request'
+        env:
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         # Keep the TRX output in a deterministic location for the upload and publish steps.
         run: >-
           dotnet test --no-build --settings Playwright.runsettings
@@ -60,14 +65,6 @@ jobs:
         with:
           name: test-results
           path: TestResults
-          if-no-files-found: warn
-
-      - name: Upload Playwright traces
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-traces
-          path: '**/playwright-traces/*.zip'
           if-no-files-found: warn
 
       - name: Set up Python
