@@ -1,0 +1,20 @@
+[extend]
+useDefault = true
+
+# Catch simple quoted password literals that the generic token rule can miss.
+[[rules]]
+id = "literal-password-quoted"
+description = "Hard-coded quoted password assignment"
+path = '''(?i)\.(?:json|cs|ya?ml|md|markdown)$'''
+regex = '''(?i)\b(?:[a-z0-9_.:-]+[_.:-])?(?:passw(?:or)?d|[a-z0-9_]+(?-i:Password))["'\x60]?[ \t]*[:=][ \t]*@?["'\x60]([^"'\x60\\{}<>\r\n]{4,128})["'\x60]'''
+secretGroup = 1
+keywords = ["password", "passwd"]
+
+# Catch plain password scalars in YAML and YAML-style Markdown examples.
+[[rules]]
+id = "literal-password-plain"
+description = "Hard-coded plain password assignment"
+path = '''(?i)\.(?:ya?ml|md|markdown)$'''
+regex = '''(?im)(?:^[ \t]*(?:[-*][ \t]+)?|\x60)(?:[a-z0-9_.:-]+[_.:-])?(?:passw(?:or)?d|[a-z0-9_]+(?-i:Password))["'\x60]?:[ \t]+([a-z0-9_][a-z0-9_./@!%+=~#?-]{3,127})(?:[ \t]+#|[ \t]*(?:\x60|\r?$))'''
+secretGroup = 1
+keywords = ["password", "passwd"]
