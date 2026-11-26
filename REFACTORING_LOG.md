@@ -419,6 +419,93 @@ Phase 3 is implemented and validated, covering:
 
 Phase 4 — Framework Architecture & Code Quality Review is the next planned phase.
 
+## Phase 4B: Security & Credential Hygiene
+
+- **Phase completed:** 2026-11-25 (final implementation commit).
+- **Documentation updated:** 2026-11-26.
+- **Status:** Implemented, validated by the developer, and published. Remaining risks and deferred work are recorded below.
+- **Scope:** Test account rotation, security audit, trace containment, credential configuration, historical exposure remediation, credential migration, and secret scanning.
+- **Evidence:** Current source, workflow configuration, and local Git history were independently reviewed for this entry. Account actions, cleanup operations, secret configuration, and prior execution results are attributed to the developer. This review used static source and local Git evidence.
+
+### Phase 4B.1 — Credential Rotation
+
+The developer registered a new dedicated test account and permanently retired the previously exposed credentials from framework usage. The old account could not be deactivated and must be treated as compromised.
+
+### Phase 4B.2 — Security Audit
+
+The developer's audit found exposed credentials in tracked documentation and historical Git objects, and sensitive information in Playwright traces. Raw traces can capture form inputs, request and authentication data, cookies, screenshots, and authenticated page state. The audit also found weaknesses in credential resolution, including the handling of incomplete pairs and fallback in CI, and in repository hygiene, including ignore coverage for local secret files and diagnostic output.
+
+The repository review confirmed that the earlier GitHub Actions configuration uploaded raw trace ZIPs and that [Components.cs](./Pages/Components.cs) enables screenshots, snapshots, and source capture when tracing is enabled. The audit findings about exposed contents come from the developer's review.
+
+### Phase 4B.3 — Trace Security Containment
+
+- [TracedPageTest.cs](./Utilities/TracedPageTest.cs) disables tracing by default. Local tracing requires an explicit opt-in with `PLAYWRIGHT_TRACE_ENABLED=true`. The value is matched case-insensitively.
+- Both Playwright GitHub Actions workflows explicitly disable tracing, and raw trace artifact uploads were removed.
+- Existing TRX reporting was preserved. The standard workflow still uploads test results and publishes the Playwright Test Results check where permitted. The cross-browser workflow still uploads results for each browser.
+
+### Phase 4B.4 — Credential Configuration
+
+- [CredentialsHelper.cs](./Utilities/CredentialsHelper.cs) resolves and validates one complete username and password pair on first use. Both getters share that result.
+- If either `TEST_USERNAME` or `TEST_PASSWORD` is defined, both must be nonblank. The environment pair takes precedence, and an incomplete or blank pair fails without fallback.
+- Local .NET User Secrets can supply a complete pair when neither environment variable is defined and no supported CI marker is present. Authenticated tests fail closed in GitHub Actions and Jenkins when environment credentials are missing or invalid. Unauthenticated paths can run without resolving credentials.
+- [CREDENTIALS_SETUP.md](./CREDENTIALS_SETUP.md) was updated with resolution, setup, and trace-handling guidance. [.gitignore](./.gitignore) expanded coverage for local environment and secret files, Playwright traces, and authentication state.
+- [playwright-tests.yml](./.github/workflows/playwright-tests.yml) and [weekly-cross-browser-tests.yml](./.github/workflows/weekly-cross-browser-tests.yml) bind credential environment variables only to test execution steps.
+
+#### Validation
+
+| Check | Developer-reported result |
+| --- | --- |
+| Credential resolution scenarios | 25/25 PASS |
+| PowerShell credential setup scenarios | 8/8 PASS |
+| Unauthenticated test under simulated CI without credentials | PASS |
+
+### Phase 4B.5 — Historical Exposure Remediation
+
+The developer reported the following cleanup and publication results.
+
+- Deleted 83 GitHub Actions artifacts, 30 local trace archives, and 15 Jenkins workspace trace archives.
+- Rewrote Git history with `git-filter-repo`, replacing 18 known credential occurrences across seven historical blobs, and established a clean development repository.
+- Preserved and published six security-related file changes. The final publication baseline contained 71 commits and 477 Git objects. The pre-publication check found zero occurrences of the two known compromised literals.
+- Published the rewritten history successfully using force-with-lease and synchronized local and remote `main`.
+
+Local Git inspection independently confirmed the six changed files in the hardening commit and counted 71 commits and 477 reachable Git objects at that commit. At documentation time, local `main` and the locally stored `origin/main` reference pointed to the same commit. Live remote state and the pre-publication literal check are covered by the developer's report.
+
+Historical GitHub pull request references and external copies, including older clones, may still retain previously exposed information. The repository owner intentionally deferred remediation through GitHub Support.
+
+### Phase 4B.6 — Credential Migration
+
+The developer configured the new credentials in local User Secrets and GitHub Actions repository secrets.
+
+| Check | Developer-reported result |
+| --- | --- |
+| Local regression | 15/15 PASS |
+| GitHub cross-browser regression | All three browser jobs passed (Chromium, Firefox, and WebKit) |
+| Standard GitHub Smoke workflow | PASS |
+
+Jenkins migration was intentionally deferred. The owner plans to remove the old Jenkins job and recreate it later. Future development will use the clean repository on the owner's personal computer.
+
+### Phase 4B.7 — Secret Scanning & Prevention
+
+- The dedicated [Secret Scanning workflow](./.github/workflows/secret-scanning.yml) runs Gitleaks on pushes to `main`, pull request events targeting `main`, and manual dispatch. It checks out full history and scans the full history reachable from `HEAD`.
+- The workflow pins Gitleaks to version `8.30.1` and verifies the archive's SHA-256 before extraction. It grants only read access to repository contents, disables checkout credential persistence, and emits redacted finding diagnostics limited to rule, file, line, and commit metadata.
+- [.gitleaks.toml](./.gitleaks.toml) retains the default rules and adds two targeted rules for quoted and plain password assignments.
+- The developer investigated eight historical false positives and confirmed that they matched historical redaction markers. The configured exceptions apply only to the quoted-password rule and require an exact marker, file path, and historical commit together.
+- The developer completed static positive, negative, and boundary validation of synthetic detection scenarios. The final GitHub Secret Scanning and Playwright Smoke workflows both passed, as reported by the developer.
+
+### Outcome and remaining limitations
+
+- Previously exposed credentials remain compromised. Historical GitHub pull request references and external copies remain outside the scope of the completed cleanup and may still retain exposed information.
+- Gitleaks cannot guarantee detection of every possible secret. CI scans commits after they reach GitHub, and Secret Scanning is not configured as a required merge check, per the repository owner.
+- Synthetic detection scenarios were validated statically. Gitleaks runtime execution against those scenarios remains unverified.
+- Jenkins configuration and validation are deferred. Temporary cleanup repositories and files are pending removal.
+
+### Commit references
+
+- `e6bad696aa5b5ace4b48f00e756938acfe776f60` — `security: harden credential handling and trace management`
+- `dd93788086a24461f5725fd332fff96186318873` — `ci: add Gitleaks secret scanning`
+- `ba932501e3ffc91013e903b1244e2ac4f7fdbe57` — `ci: add redacted Gitleaks finding diagnostics`
+- `025f8c1ae3f17294f819636866ded5ec817a0084` — `fix(ci): scope Gitleaks exceptions to historical redaction`
+
 ## Template for future phases
 
 Copy this template above this section for each new phase. Separate source-verified facts, recorded execution results, assumptions, and unmeasured expectations.
